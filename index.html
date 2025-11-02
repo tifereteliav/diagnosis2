@@ -576,6 +576,10 @@
             
             // מנטרל אירועי מצביע על כל היעדים כדי למנוע דאבל-קליק בזמן הטיימר
             document.querySelectorAll('.character-target').forEach(t => t.style.pointerEvents = 'none');
+            // *** currentDefinitionEl כבר הוסתר ב-handleTouchEnd או יוסתר כעת ***
+            if (!currentDefinitionEl.classList.contains('hidden')) {
+                currentDefinitionEl.classList.add('hidden'); // ודא שהוא מוסתר גם בדסקטופ
+            }
             currentDefinitionEl.style.pointerEvents = 'none'; // וגם על הכרטיס הנוכחי
 
             // הסרת הסימון והתקדמות לשאלה הבאה לאחר השהיה קצרה (0.5 שניות)
@@ -585,6 +589,15 @@
 
                 // החזרת אירועי מצביע
                 document.querySelectorAll('.character-target').forEach(t => t.style.pointerEvents = 'auto');
+                
+                // *** ניקוי סגנונות מיקום קבוע שהושארו מ-handleTouchStart/Move ***
+                currentDefinitionEl.style.position = '';
+                currentDefinitionEl.style.top = '';
+                currentDefinitionEl.style.left = '';
+                currentDefinitionEl.style.width = '';
+                currentDefinitionEl.style.zIndex = '';
+                currentDefinitionEl.style.transition = '';
+                currentDefinitionEl.style.transform = ''; 
                 
                 // 3. התקדמות מיידית לשאלה הבאה
                 currentDefinitionIndex++;
@@ -734,42 +747,48 @@
             isDraggingTouch = false;
             currentDefinitionEl.classList.remove('is-dragging');
             
-            // החזרת הכרטיס למקומו המקורי עם אנימציה
-            currentDefinitionEl.style.transition = 'transform 0.3s ease-out, left 0.3s ease-out, top 0.3s ease-out';
+            // *** שינוי: החזרת הכרטיס למקומו המקורי מתבצעת בתוך processDrop,
+            // *** אנו רק מנקים את כל הסטיילים הקשורים ל-fixed כדי שהכרטיס יחזור מהר ***
             
-            // כדי לחזור למיקום המקורי ב-definitionArea, אנו מנקים את המיקום הקבוע
-            currentDefinitionEl.style.transform = ``; 
-            currentDefinitionEl.style.left = originalCardRect.left + 'px';
-            currentDefinitionEl.style.top = originalCardRect.top + 'px';
+            // ננקה את הסטיילים כאן רק אם לא נפלנו על יעד (כי אחרת processDrop יטפל בזה)
+            if (!targetEl) {
+                // אם פספסנו את היעד, מחזירים את הכרטיס למקומו ומתקדמים מיד
+
+                // החזרת הכרטיס למקומו המקורי עם אנימציה
+                currentDefinitionEl.style.transition = 'transform 0.3s ease-out, left 0.3s ease-out, top 0.3s ease-out';
+                currentDefinitionEl.style.transform = ``; 
+                currentDefinitionEl.style.left = originalCardRect.left + 'px';
+                currentDefinitionEl.style.top = originalCardRect.top + 'px';
+
+                // ניקוי סגנונות ה-fixed לאחר האנימציה (300ms)
+                setTimeout(() => {
+                    currentDefinitionEl.style.position = '';
+                    currentDefinitionEl.style.top = '';
+                    currentDefinitionEl.style.left = '';
+                    currentDefinitionEl.style.width = '';
+                    currentDefinitionEl.style.zIndex = '';
+                    currentDefinitionEl.style.transition = '';
+                    
+                    // ודא שכל סימון ויזואלי שהיה הוסר
+                    document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
+                    
+                    // מתקדמים לשאלה הבאה ללא ניקוד
+                    currentDefinitionIndex++;
+                    displayCurrentDefinition();
+                    updateProgress();
+                }, 300);
+            }
             
             // *** לוגיקת ההדגשה, הניקוד והתקדמות ***
             if (targetEl) {
-                // אם נפלנו על יעד, processDrop מטפל בניקוד, מפעיל את ה-success-flash והתקדמות
+                // אם נפלנו על יעד:
+                // 1. קוראים ל-processDrop - הוא יטפל בניקוד, בהדגשה (flash) ובהתקדמות
                 processDrop(targetEl, dragTargetType);
                 
-                // *** שיפור ויזואלי: מנקה את ה-drag-over רק לאחר שה-processDrop הפעיל את ה-flash ***
-                // ה-processDrop כבר מטפל בניקוי ה-drag-over וה-flash ב-setTimeout
+                // 2. ניקוי המיקום הקבוע מתבצע בתוך processDrop אחרי הפלאש.
                 
-            } else {
-                // אם פספסנו את היעד, מוודאים שכל סימון ויזואלי שהיה (למשל אם עצרנו מעל יעד ואז זזנו) הוסר
-                document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
-                
-                // מתקדמים לשאלה הבאה ללא ניקוד
-                currentDefinitionIndex++;
-                displayCurrentDefinition();
-                updateProgress();
-            }
+            } 
             // **********************************
-
-            // ניקוי סגנונות ה-fixed לאחר האנימציה (300ms)
-            setTimeout(() => {
-                currentDefinitionEl.style.position = '';
-                currentDefinitionEl.style.top = '';
-                currentDefinitionEl.style.left = '';
-                currentDefinitionEl.style.width = '';
-                currentDefinitionEl.style.zIndex = '';
-                currentDefinitionEl.style.transition = '';
-            }, 300);
             
             dragTargetType = null;
         }
