@@ -455,6 +455,7 @@
                 currentDefinitionEl.classList.remove('hidden');
                 
                 // ודא שהכרטיס שוב ניתן לגרור ושמקומו שוחזר לאחר סיום גרירה קודמת (במיוחד במגע)
+                // איפוס סגנונות ה-fixed ו-transform לטובת מניעת באגים במעבר בין שאלות
                 currentDefinitionEl.style.transform = '';
                 currentDefinitionEl.style.position = '';
                 currentDefinitionEl.style.top = '';
@@ -605,7 +606,8 @@
         function handleDragOver(e) {
             e.preventDefault(); 
             const targetEl = e.target.closest('.character-target');
-            if (targetEl) {
+            // בדיקה ודאית שהאלמנט אינו ריק ושהוא יעד גרירה
+            if (targetEl && targetEl.classList.contains('character-target')) {
                 e.dataTransfer.dropEffect = 'move';
                 targetEl.classList.add('drag-over');
             }
@@ -634,7 +636,12 @@
         function getTargetElementFromTouch(e) {
             const touch = e.changedTouches[0] || e.touches[0];
             // שימוש ב-elementFromPoint כדי למצוא את האלמנט שמתחת לאצבע
-            const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+            // חשוב: כרטיס ההגדרה נשלח ל-z-index גבוה, ולכן נחפש מתחתיו
+            // עלינו להסתיר אותו רגעית כדי לבדוק מה נמצא מתחת
+            currentDefinitionEl.style.display = 'none';
+            let targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+            currentDefinitionEl.style.display = 'flex'; // החזרת הכרטיס
+
             // החזרת היעד רק אם הוא אלמנט גרירה
             return targetEl ? targetEl.closest('.character-target') : null;
         }
@@ -658,6 +665,8 @@
             currentDefinitionEl.style.width = originalCardRect.width + 'px';
             currentDefinitionEl.style.zIndex = 1000;
             currentDefinitionEl.classList.add('is-dragging');
+            // מחיקת Transition כדי שההזזה תהיה מיידית ולא "תשחה"
+            currentDefinitionEl.style.transition = 'none'; 
         }
 
         function handleTouchMove(e) {
@@ -672,10 +681,11 @@
             currentDefinitionEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
             
             // בדיקה ויזואלית: סימון היעד שנמצא מתחת לאצבע
+            // שיפור: מנקים קודם את כל הסימונים, ואז מסמנים רק את הנוכחי
+            const targets = document.querySelectorAll('.character-target');
             const targetEl = getTargetElementFromTouch(e);
             
-            // הסרת סימון מכל היעדים
-            document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
+            targets.forEach(t => t.classList.remove('drag-over'));
             
             if (targetEl) {
                 targetEl.classList.add('drag-over');
@@ -684,26 +694,27 @@
 
         function handleTouchEnd(e) {
             if (!isDraggingTouch) return;
-            isDraggingTouch = false;
+            // אין צורך ב-e.preventDefault() כאן, אבל משתמשים ב-e.changedTouches
             
-            // מציאת היעד בנקודת השחרור
+            // מציאת היעד בנקודת השחרור (שימוש ב changedTouches)
             const targetEl = getTargetElementFromTouch(e);
             
             // הסרת סגנון הגרירה
+            isDraggingTouch = false;
             currentDefinitionEl.classList.remove('is-dragging');
             document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
+
+            // החזרת הכרטיס למקומו המקורי עם אנימציה
+            currentDefinitionEl.style.transition = 'transform 0.3s ease-out';
+            currentDefinitionEl.style.transform = 'none';
 
             if (targetEl) {
                 // שחרור מוצלח: קריאה לפונקציית הליבה
                 processDrop(targetEl, dragTargetType);
             }
             
-            // בכל מקרה (שחרור מוצלח או לא), החזרת הכרטיס למקומו המקורי
-            currentDefinitionEl.style.transition = 'transform 0.3s ease-out';
-            currentDefinitionEl.style.transform = 'none';
-            
+            // ניקוי סגנונות ה-fixed לאחר האנימציה, כדי שה-displayCurrentDefinition יוכל להציג את ההגדרה הבאה כרגיל
             setTimeout(() => {
-                // איפוס סגנונות ה-fixed לאחר האנימציה
                 currentDefinitionEl.style.position = '';
                 currentDefinitionEl.style.top = '';
                 currentDefinitionEl.style.left = '';
@@ -725,6 +736,7 @@
             currentDefinitionEl.addEventListener('dragstart', handleDragStart);
 
             // הוספת מאזיני אירועי מגע (Mobile/Tablet)
+            // שימו לב: הוספתי { passive: false } ל-touchstart ול-touchmove כדי לוודא ש-preventDefault עובד
             currentDefinitionEl.addEventListener('touchstart', handleTouchStart, { passive: false });
             currentDefinitionEl.addEventListener('touchmove', handleTouchMove, { passive: false });
             currentDefinitionEl.addEventListener('touchend', handleTouchEnd);
