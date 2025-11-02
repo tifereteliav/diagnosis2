@@ -48,7 +48,7 @@
             direction: rtl; 
             line-height: 1.6;
             min-height: 100vh;
-            overflow-x: hidden; /* *** תיקון: מונע גלילה אופקית בזמן גרירה *** */
+            overflow-x: hidden; /* מונע גלילה אופקית בזמן גרירה */
         }
         .game-container {
             max-width: 1400px;
@@ -59,16 +59,14 @@
             padding: 2.5rem 2rem;
             gap: 2.5rem;
             animation: fadeIn 0.8s ease-out;
-            margin-top: 2rem; /* הוספת שוליים עליונים לגלילה */
-            margin-bottom: 2rem; /* הוספת שוליים תחתונים לגלילה */
+            margin-top: 2rem; 
+            margin-bottom: 2rem; 
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* הכותרת הכללית הוסרה */
-        
         /* כרטיס הגדרות - קונטרסט גבוה */
         .definition-card {
             cursor: grab;
@@ -101,8 +99,8 @@
         }
         .definition-card.is-dragging {
             opacity: 0.9;
-            /* *** תיקון חדש: אירועי מצביע מנוטרלים כדי לאפשר זיהוי יעד שמתחתיו *** */
-            pointer-events: none;
+            /* קריטי: הופך את האלמנט השקוף לאירועי מגע כדי לאפשר זיהוי יעד שמתחתיו */
+            pointer-events: none; 
         }
         .definition-card span.text-xl {
             color: var(--accent-color);
@@ -187,24 +185,20 @@
             border-radius: 9999px;
             box-shadow: 0 0 5px var(--accent-color); 
         }
-        #progressText {
-            color: var(--text-muted);
-            font-weight: 500;
-            margin-top: 0.75rem;
-            font-size: 1rem;
-        }
 
         /* מודאל תוצאות - נשאר כהה לאפקט דרמטי */
         .results-modal {
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.98); /* *** שיפור: כמעט אטום לגמרי לנראות מקסימלית *** */
         }
         .results-card {
             background: #1e293b;
             border-radius: 2rem;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8), inset 0 0 0 2px var(--accent-color);
+            /* *** שיפור: הצללה וגבול חזקים יותר *** */
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 1), inset 0 0 0 4px var(--accent-color);
             padding: 3rem;
             color: white;
             animation: modalPopIn 0.5s ease-out;
+            max-width: 90%; /* וודא שלא עולה על רוחב מסך במובייל */
         }
         @keyframes modalPopIn {
             from { opacity: 0; transform: scale(0.8); }
@@ -229,17 +223,18 @@
             font-weight: 700;
             padding: 1rem 2.5rem;
             border-radius: 9999px;
-            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.5);
+            /* *** שיפור: צל חזק יותר לכפתור *** */
+            box-shadow: 0 12px 35px rgba(79, 70, 229, 0.7);
             transition: all 0.3s ease-in-out;
             border: none;
             text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
         }
         .results-card button#restartButton:hover {
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(79, 70, 229, 0.6), 0 0 20px var(--accent-color);
+            /* *** שיפור: צל חזק יותר בהובר לכפתור *** */
+            box-shadow: 0 20px 50px rgba(79, 70, 229, 0.8), 0 0 25px var(--accent-color);
             background: linear-gradient(90deg, var(--secondary-color), var(--primary-color)) !important; 
         }
-
 
         /* התאמות למובייל (מסכים קטנים מ-640px) */
         @media (max-width: 639px) {
@@ -247,56 +242,37 @@
                 gap: 1.5rem; 
                 padding: 1.5rem 1rem;
             }
-            header {
-                margin-bottom: 1.5rem;
-                padding-bottom: 1rem;
-            }
-            h1 {
-                font-size: 2.5rem; 
-            }
-            .header-subtext {
-                font-size: 1rem;
-            }
+            
             .definition-card {
                 padding: 1rem;
                 min-height: 160px;
             }
-            .definition-card span.text-xl {
-                font-size: 1rem;
-                margin-bottom: 0.5rem;
-            }
+            
             .definition-card p {
-                font-size: 1.05rem; /* גודל גופן נוח לקריאה במובייל */
-                line-height: 1.4;
+                font-size: 1.15rem; /* גודל גופן משופר לקריאה במובייל */
+                line-height: 1.5;
             }
             
             /* *** תיקון קריטי: מעבר לטור יחיד במובייל *** */
             #targetsArea {
                 grid-template-columns: 1fr; /* טור יחיד לרוחב מלא */
-                gap: 1rem; /* רווח נדיב בין היעדים */
+                gap: 1rem; 
                 margin-top: 1.5rem;
             }
-            .character-target {
-                min-height: 120px; 
-                padding: 1rem;
-            }
             .character-target .text-5xl { 
-                font-size: 3.5rem; /* אמוג'י גדול וברור */
+                font-size: 4rem; 
             }
-            .character-target p.text-lg { 
-                font-size: 1.1rem; /* שם הסוכרת גדול וברור */
-            }
-            .character-target p.text-sm {
-                font-size: 0.85rem;
-            }
+
+            /* *** הוספת התאמה למודאל התוצאות במובייל *** */
             .results-card {
-                padding: 2rem;
+                padding: 2rem 1.5rem; /* הקטנת ריפוד */
             }
             .results-card h2 {
-                font-size: 2.5rem;
+                font-size: 2.5rem; /* הקטנת כותרת */
             }
             .results-card p#finalScore {
-                font-size: 3.5rem;
+                font-size: 3.5rem; /* הקטנת קוד סודי */
+                margin-bottom: 2rem;
             }
         }
     </style>
@@ -323,12 +299,12 @@
                 <div id="currentDefinition"
                      class="definition-card w-full text-text-color-primary text-lg font-medium"
                      draggable="true">
-                    
-</div>
+                    <!-- תוכן ההגדרה יוכנס כאן באמצעות JS -->
+                </div>
             </div>
 
             
-<div class="w-full max-w-3xl mt-6">
+            <div class="w-full max-w-3xl mt-6">
                 <div id="progressBarContainer" class="h-2 rounded-full overflow-hidden">
                     <div id="progressBar" class="h-full transition-all duration-500 ease-out" style="width: 0%"></div>
                 </div>
@@ -337,14 +313,14 @@
 
 
             
-<div id="targetsArea" class="w-full grid grid-cols-2 md:grid-cols-5 gap-6 mt-10">
-                
-</div>
+            <div id="targetsArea" class="w-full grid grid-cols-2 md:grid-cols-5 gap-6 mt-10">
+                <!-- יעדי הגרירה יוכנסו כאן באמצעות JS -->
+            </div>
         </div>
     </div>
 
     
-<div id="resultsModal" class="results-modal fixed inset-0 flex items-center justify-center p-4 hidden z-[100]">
+    <div id="resultsModal" class="results-modal fixed inset-0 flex items-center justify-center p-4 hidden z-[100]">
         <div class="results-card w-full max-w-md text-center">
             <h2 class="text-4xl font-extrabold mb-4">המשחק הסתיים!</h2>
             <p id="feedbackText" class="text-xl text-text-color-secondary mb-6">הקוד הסודי שלך הוא:</p>
@@ -370,7 +346,7 @@
                 type: "סוכרת סוג 2",
                 label: "(Type 2)",
                 definition: "מחלה מטבולית המאופיינת בעמידות לאינסולין, לרוב אצל מבוגרים, אך שכיחותה עולה גם בגיל צעיר. קשורה להשמנה ולגורמים גנטיים, ומטופלת לרוב בשינוי אורח חיים ותרופות פומיות, ולעיתים באינסולין.",
-                emoji: "🏋️‍♂️" // אימוג'י חדש: אדם מרים משקולות
+                emoji: "🏋️‍♂️" 
             },
             // MODY (אישה ממוצעת)
             {
@@ -398,19 +374,18 @@
         // משתני מצב המשחק
         let gameData = []; // הנתונים המעורבבים והמעודכנים
         let currentDefinitionIndex = 0;
-        let score = 0; // הניקוד נספר באופן סמוי
+        let score = 0; 
         let isGameActive = false;
         let dragTargetType = null; 
         
         // משתני מצב מגע (Touch)
         let isDraggingTouch = false;
-        let touchStartX, touchStartY;
         let originalCardRect; // לשימור מיקום הכרטיס המקורי
         let autoScrollInterval = null; // משתנה לשמירת הטיימר של הגלילה האוטומטית
 
         // קבועים לגלילה אוטומטית
         const SCROLL_THRESHOLD = 50; // מרחק בפיקסלים מהקצה שיתחיל גלילה
-        const SCROLL_SPEED = 15;   // מהירות גלילה בפיקסלים לכל אינטרוול
+        const SCROLL_SPEED = 15;    // מהירות גלילה בפיקסלים לכל אינטרוול
 
         // אלמנטים DOM
         const definitionArea = document.getElementById('definitionArea');
@@ -425,11 +400,11 @@
         const TOTAL_DEFINITIONS = definitionsData.length; // 5
         const bodyEl = document.body; // אלמנט body
 
-        // *** אלמנטים חדשים למסך הפתיחה ***
+        // אלמנטים חדשים למסך הפתיחה
         const splashScreen = document.getElementById('splashScreen');
         const startButton = document.getElementById('startButton');
         const gameContent = document.getElementById('gameContent');
-        // **********************************
+        
 
         /**
          * מערבב מערך באופן אקראי (אלגוריתם Fisher-Yates)
@@ -463,7 +438,7 @@
                 currentDefinitionEl.setAttribute('data-type', currentData.type); 
                 currentDefinitionEl.classList.remove('hidden');
                 
-                // איפוס סגנונות ה-fixed ו-transform לטובת מניעת באגים במעבר בין שאלות
+                // איפוס סגנונות מיקום זמניים והחזרת נראות רגילה
                 currentDefinitionEl.style.transform = '';
                 currentDefinitionEl.style.position = '';
                 currentDefinitionEl.style.top = '';
@@ -471,9 +446,7 @@
                 currentDefinitionEl.style.width = '';
                 currentDefinitionEl.style.zIndex = '';
                 currentDefinitionEl.style.transition = '';
-                // *** ודא ש-pointer-events מופעל שוב לאחר גרירה קודמת ***
-                currentDefinitionEl.style.pointerEvents = 'auto'; 
-
+                currentDefinitionEl.style.pointerEvents = 'auto'; // ודא שאירועי מצביע מופעלים
             } else {
                 // הסתרת כרטיס הגרירה והצגת הודעת סיום באזור ההגדרה
                 currentDefinitionEl.classList.add('hidden');
@@ -515,17 +488,14 @@
                 
                 targetsArea.appendChild(targetEl);
             });
-            
         }
 
         /**
          * התחלת המשחק: איפוס מצב, ערבוב נתונים והצגת ההגדרה הראשונה
          */
         function startGame() {
-            // *** שינוי חדש: ניהול מסך הפתיחה והתוכן הראשי ***
             splashScreen.classList.add('hidden');
             gameContent.classList.remove('hidden');
-            // ******************************************************
             
             score = 0;
             currentDefinitionIndex = 0;
@@ -533,7 +503,7 @@
             
             // שחזור מבנה definitionArea כדי לאפשר משחק חוזר
             if (!definitionArea.contains(currentDefinitionEl)) {
-                definitionArea.innerHTML = ''; // מנקה הודעת סיום
+                definitionArea.innerHTML = ''; 
                 definitionArea.appendChild(currentDefinitionEl);
             }
             currentDefinitionEl.classList.remove('hidden'); 
@@ -588,9 +558,10 @@
 
         /**
          * פונקציית ליבה לעיבוד אירוע שחרור (משותפת ל-Drop ול-Touch End)
+         * מטפלת בניקוד, אפקט ויזואלי והתקדמות לשאלה הבאה.
          */
         function processDrop(targetEl, draggedType) {
-            if (!targetEl) return;
+            if (!targetEl) return; // הגנה, למרות שהלוגיקה שקוראת לפונקציה הזו כבר בודקת זאת
 
             const targetType = targetEl.getAttribute('data-type'); 
             let isCorrect = (draggedType === targetType);
@@ -603,16 +574,23 @@
             // 2. סימון אחיד קצר ללא גילוי נכונות (רק כדי לסמן שהאירוע נקלט)
             targetEl.classList.add('success-flash'); 
             
-            // הסרת הסימון לאחר השהיה קצרה (0.5 שניות)
+            // מנטרל אירועי מצביע על כל היעדים כדי למנוע דאבל-קליק בזמן הטיימר
+            document.querySelectorAll('.character-target').forEach(t => t.style.pointerEvents = 'none');
+            currentDefinitionEl.style.pointerEvents = 'none'; // וגם על הכרטיס הנוכחי
+
+            // הסרת הסימון והתקדמות לשאלה הבאה לאחר השהיה קצרה (0.5 שניות)
             setTimeout(() => {
-                targetEl.classList.remove('drag-over'); // ודא שגם ה-drag-over מוסר
+                targetEl.classList.remove('drag-over'); 
                 targetEl.classList.remove('success-flash');
+
+                // החזרת אירועי מצביע
+                document.querySelectorAll('.character-target').forEach(t => t.style.pointerEvents = 'auto');
+                
+                // 3. התקדמות מיידית לשאלה הבאה
+                currentDefinitionIndex++;
+                displayCurrentDefinition();
+                updateProgress();
             }, 500); 
-            
-            // 3. התקדמות מיידית לשאלה הבאה (בכל מצב)
-            currentDefinitionIndex++;
-            displayCurrentDefinition();
-            updateProgress();
         }
 
 
@@ -628,44 +606,43 @@
         function handleDragOver(e) {
             e.preventDefault(); 
             const targetEl = e.target.closest('.character-target');
-            // בדיקה ודאית שהאלמנט אינו ריק ושהוא יעד גרירה
             if (targetEl && targetEl.classList.contains('character-target')) {
                 e.dataTransfer.dropEffect = 'move';
+                // הסרת drag-over מכל השאר והוספה ליעד הנוכחי
+                document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
                 targetEl.classList.add('drag-over');
             }
         }
 
         function handleDragLeave(e) {
-            e.target.closest('.character-target')?.classList.remove('drag-over');
+            // e.target.closest('.character-target')?.classList.remove('drag-over');
+            // מנוטרל כי handleDragOver כבר מסיר את כולם, וזה מונע "הבהוב"
         }
 
         function handleDrop(e) {
             e.preventDefault();
             const targetEl = e.target.closest('.character-target');
             
-            if (!targetEl) return;
-            
-            // הסרת אפקט הגרירה הוויזואלי (drag-over)
-            targetEl.classList.remove('drag-over');
-
-            // קריאה לפונקציית הליבה
-            processDrop(targetEl, dragTargetType);
+            if (targetEl) {
+                // אם נפלו על יעד, processDrop מטפל בהכל (ניקוד, פלאש והתקדמות)
+                processDrop(targetEl, dragTargetType);
+            } else {
+                // אם פספסו את היעד לחלוטין (נופל בחלל ריק)
+                currentDefinitionIndex++;
+                displayCurrentDefinition();
+                updateProgress();
+            }
         }
         
-        // --- פונקציות גלילה אוטומטית ---
+        // --- פונקציות גלילה אוטומטית (עוזרות למובייל) ---
 
         function startAutoScroll(direction) {
-            // אם טיימר הגלילה כבר פועל, אל תפעיל טיימר חדש
             if (autoScrollInterval) return;
 
             autoScrollInterval = setInterval(() => {
-                // כוון את המהירות בהתאם לכיוון (חיובי למטה, שלילי למעלה)
                 const scrollAmount = direction * SCROLL_SPEED;
-                
-                // בצע גלילה
                 window.scrollBy(0, scrollAmount); 
-                
-            }, 50); // קצב רענון מהיר לגלילה חלקה
+            }, 50); 
         }
 
         function stopAutoScroll() {
@@ -679,15 +656,13 @@
 
         function handleTouchStart(e) {
             if (!isGameActive || e.touches.length !== 1) return;
-            e.preventDefault(); // מונע גלילה/זום כדי להתחיל בגרירה
+            e.preventDefault(); // מונע גלילה/זום כדי לאפשר גרירה מיידית
 
             isDraggingTouch = true;
             dragTargetType = e.target.getAttribute('data-type');
             
             // שמירת מיקום מקורי ונקודת התחלה
             originalCardRect = currentDefinitionEl.getBoundingClientRect();
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
             
             // מעבר למיקום קבוע (fixed) כדי לאפשר גרירה מחוץ לקונטיינר
             currentDefinitionEl.style.position = 'fixed';
@@ -696,29 +671,24 @@
             currentDefinitionEl.style.width = originalCardRect.width + 'px';
             currentDefinitionEl.style.zIndex = 1000;
             currentDefinitionEl.classList.add('is-dragging');
-            // מחיקת Transition כדי שההזזה תהיה מיידית ולא "תשחה"
-            currentDefinitionEl.style.transition = 'none'; 
-            
-            // *** הפעלת pointer-events: none (באמצעות CSS) כדי להיות שקוף לאירועי מגע ***
-            // זה מופעל באמצעות הקלאס .is-dragging (ראו CSS מעל)
+            currentDefinitionEl.style.transition = 'none'; // מונע "שחייה" של הכרטיס
         }
 
         function handleTouchMove(e) {
             if (!isDraggingTouch || e.touches.length !== 1) return;
-            // ה-e.preventDefault() הוסר מכאן, מה שמאפשר גלילה תוך כדי תנועה (דרך ה-Auto-Scroll)
-
-            const touch = e.touches[0];
-            const deltaX = touch.clientX - touchStartX;
-            const deltaY = touch.clientY - touchStartY;
             
-            // 1. הזזת הכרטיס עם האצבע (יחסית לנקודת ההתחלה)
-            currentDefinitionEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            const touch = e.touches[0];
+            
+            // 1. הזזת הכרטיס (מחושב יחסית למיקום המקורי, לא לנקודת התחלת המגע)
+            const newX = touch.clientX - originalCardRect.width / 2;
+            const newY = touch.clientY - originalCardRect.height / 2;
+            
+            // השתמש ב-touch.clientX, touch.clientY כדי למקם את המרכז של הכרטיס במיקום האצבע
+            currentDefinitionEl.style.left = `${touch.clientX - originalCardRect.width / 2}px`;
+            currentDefinitionEl.style.top = `${touch.clientY - originalCardRect.height / 2}px`;
             
             // 2. בדיקה ויזואלית: סימון היעד שנמצא מתחת לאצבע
-            
-            // *** שימוש ב-elementFromPoint לבדיקה מדויקת של יעד ***
-            // נשתמש בטכניקה בטוחה יותר: מכיוון ש-pointer-events: none מופעל ב-.is-dragging, 
-            // אנחנו יכולים להשתמש ב-elementFromPoint ישירות!
+            // elementFromPoint יעבוד כי לכרטיס הנגרר יש pointer-events: none (דרך is-dragging)
             let elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
             let currentTarget = elementUnderTouch ? elementUnderTouch.closest('.character-target') : null;
 
@@ -727,17 +697,15 @@
             if (currentTarget) {
                 currentTarget.classList.add('drag-over');
             }
-            // *************************************************************
-            
             
             // 3. לוגיקת גלילה אוטומטית (Auto-Scroll)
             const viewportHeight = window.innerHeight;
             
-            if (touch.clientY < SCROLL_THRESHOLD) {
-                // גלילה למעלה: כיוון -1
+            if (touch.clientY < SCROLL_THRESHOLD && window.scrollY > 0) {
+                // גלילה למעלה
                 startAutoScroll(-1);
-            } else if (touch.clientY > viewportHeight - SCROLL_THRESHOLD) {
-                // גלילה למטה: כיוון 1
+            } else if (touch.clientY > viewportHeight - SCROLL_THRESHOLD && (window.scrollY + viewportHeight < document.documentElement.scrollHeight)) {
+                // גלילה למטה
                 startAutoScroll(1);
             } else {
                 // עצירת גלילה
@@ -754,33 +722,36 @@
             const touch = e.changedTouches[0];
             let targetEl = null;
 
-            // *** שימוש ב-elementFromPoint לאחר הפעלת pointer-events: none ב-handleTouchStart/Move ***
+            // מציאת האלמנט שמתחת לנקודת השחרור
             let droppedTarget = document.elementFromPoint(touch.clientX, touch.clientY);
 
             if (droppedTarget) {
                 targetEl = droppedTarget.closest('.character-target');
             }
             
-            // הסרת סגנון הגרירה (והחזרת pointer-events: auto דרך displayCurrentDefinition)
+            // הסרת סגנון הגרירה והחזרת הכרטיס למקומו המקורי
             isDraggingTouch = false;
             currentDefinitionEl.classList.remove('is-dragging');
             document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
 
-            // החזרת הכרטיס למקומו המקורי עם אנימציה
-            currentDefinitionEl.style.transition = 'transform 0.3s ease-out';
-            currentDefinitionEl.style.transform = 'none';
-
-            if (targetEl && targetEl.getAttribute('data-type') === dragTargetType) {
-                // שחרור מוצלח ומתאים: קריאה לפונקציית הליבה
-                processDrop(targetEl, dragTargetType);
+            // החזרת הכרטיס למקומו המקורי עם אנימציה (transform: none)
+            currentDefinitionEl.style.transition = 'transform 0.3s ease-out, left 0.3s ease-out, top 0.3s ease-out';
+            currentDefinitionEl.style.transform = 'translate(0, 0)';
+            currentDefinitionEl.style.left = originalCardRect.left + 'px';
+            currentDefinitionEl.style.top = originalCardRect.top + 'px';
+            
+            // *** לוגיקת התיקון הקריטית למובייל ***
+            if (targetEl) {
+                // אם נפלנו על יעד (נכון או שגוי), processDrop מטפל בניקוד, פלאש והתקדמות
+                processDrop(targetEl, dragTargetType); 
             } else {
-                // שחרור בריק, שחרור על יעד שגוי או שגיאת זיהוי
-                // מתקדמים בכל מקרה אבל ללא ניקוד נוסף (כי processDrop לא נקרא)
+                // אם פספסנו את היעד, מתקדמים לשאלה הבאה ללא ניקוד
                 currentDefinitionIndex++;
                 displayCurrentDefinition();
                 updateProgress();
             }
-            
+            // **********************************
+
             // ניקוי סגנונות ה-fixed לאחר האנימציה
             setTimeout(() => {
                 currentDefinitionEl.style.position = '';
@@ -809,7 +780,7 @@
             currentDefinitionEl.addEventListener('dragstart', handleDragStart);
 
             // הוספת מאזיני אירועי מגע (Mobile/Tablet)
-            currentDefinitionEl.addEventListener('touchstart', handleTouchStart, { passive: false });
+            currentDefinitionEl.addEventListener('touchstart', handleTouchStart, { passive: false }); // passive: false קריטי ל-preventDefault
             currentDefinitionEl.addEventListener('touchmove', handleTouchMove);
             currentDefinitionEl.addEventListener('touchend', handleTouchEnd);
         };
