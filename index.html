@@ -391,6 +391,7 @@
         
         // משתני מצב מגע (Touch)
         let isDraggingTouch = false;
+        let touchStartX, touchStartY; // *** הצהרה נוספת ***
         let originalCardRect; // לשימור מיקום הכרטיס המקורי
         let autoScrollInterval = null; // משתנה לשמירת הטיימר של הגלילה האוטומטית
 
@@ -702,6 +703,9 @@
             
             // שמירת מיקום מקורי ונקודת התחלה
             originalCardRect = currentDefinitionEl.getBoundingClientRect();
+            // *** שינוי: שמירת נקודת התחלה לחישוב דלתא מדויק יותר ***
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
             
             // מעבר למיקום קבוע (fixed) כדי לאפשר גרירה מחוץ לקונטיינר
             currentDefinitionEl.style.position = 'fixed';
@@ -719,11 +723,11 @@
             
             const touch = e.touches[0];
             
-            // 1. הזזת הכרטיס
+            // *** 1. הזזת הכרטיס באמצעות transform: translate (חלק יותר במובייל) ***
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = touch.clientY - touchStartY;
             
-            // ממקם את מרכז הכרטיס במיקום האצבע
-            currentDefinitionEl.style.left = `${touch.clientX - originalCardRect.width / 2}px`;
-            currentDefinitionEl.style.top = `${touch.clientY - originalCardRect.height / 2}px`;
+            currentDefinitionEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
             
             // 2. בדיקה ויזואלית: סימון היעד שנמצא מתחת לאצבע
             // elementFromPoint יעבוד כי לכרטיס הנגרר יש pointer-events: none (דרך is-dragging)
