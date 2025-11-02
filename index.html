@@ -659,7 +659,8 @@
             e.preventDefault(); // מונע גלילה/זום כדי לאפשר גרירה מיידית
 
             isDraggingTouch = true;
-            dragTargetType = e.target.getAttribute('data-type');
+            // *** תיקון קריטי: ודא שאתה קורא את ה-data-type מהכרטיס הראשי ***
+            dragTargetType = currentDefinitionEl.getAttribute('data-type');
             
             // שמירת מיקום מקורי ונקודת התחלה
             originalCardRect = currentDefinitionEl.getBoundingClientRect();
@@ -679,9 +680,7 @@
             
             const touch = e.touches[0];
             
-            // 1. הזזת הכרטיס (מחושב יחסית למיקום המקורי, לא לנקודת התחלת המגע)
-            const newX = touch.clientX - originalCardRect.width / 2;
-            const newY = touch.clientY - originalCardRect.height / 2;
+            // 1. הזזת הכרטיס
             
             // השתמש ב-touch.clientX, touch.clientY כדי למקם את המרכז של הכרטיס במיקום האצבע
             currentDefinitionEl.style.left = `${touch.clientX - originalCardRect.width / 2}px`;
@@ -734,13 +733,16 @@
             currentDefinitionEl.classList.remove('is-dragging');
             document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
 
-            // החזרת הכרטיס למקומו המקורי עם אנימציה (transform: none)
+            // החזרת הכרטיס למקומו המקורי עם אנימציה
             currentDefinitionEl.style.transition = 'transform 0.3s ease-out, left 0.3s ease-out, top 0.3s ease-out';
-            currentDefinitionEl.style.transform = 'translate(0, 0)';
+            
+            // *** תיקון: החזרת המיקום הקבוע למיקום המקורי לפני הטרנספורמציה ***
+            // אם לא נפטרנו מה-transform ב-displayCurrentDefinition, נשתמש בטרנספורם
+            currentDefinitionEl.style.transform = `translate(0, 0)`; 
             currentDefinitionEl.style.left = originalCardRect.left + 'px';
             currentDefinitionEl.style.top = originalCardRect.top + 'px';
             
-            // *** לוגיקת התיקון הקריטית למובייל ***
+            // *** לוגיקת הניקוד והתקדמות ***
             if (targetEl) {
                 // אם נפלנו על יעד (נכון או שגוי), processDrop מטפל בניקוד, פלאש והתקדמות
                 processDrop(targetEl, dragTargetType); 
