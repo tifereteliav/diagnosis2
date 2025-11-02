@@ -41,8 +41,6 @@
             100% { background-position: 100% 100%; }
         }
         
-        /* הורדנו את no-scroll CSS כיוון שאנו משתמשים בגלילה אוטומטית */
-
         body {
             font-family: 'Heebo', sans-serif;
             background-color: var(--bg-light);
@@ -50,6 +48,7 @@
             direction: rtl; 
             line-height: 1.6;
             min-height: 100vh;
+            overflow-x: hidden; /* *** תיקון: מונע גלילה אופקית בזמן גרירה *** */
         }
         .game-container {
             max-width: 1400px;
@@ -68,22 +67,8 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        header {
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--border-color-light);
-            margin-bottom: 2.5rem;
-        }
-        h1 {
-            color: var(--primary-color);
-            font-weight: 800; 
-            letter-spacing: -0.04em;
-            line-height: 1.1;
-        }
-        .header-subtext {
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
+        /* הכותרת הכללית הוסרה */
+        
         /* כרטיס הגדרות - קונטרסט גבוה */
         .definition-card {
             cursor: grab;
@@ -319,33 +304,41 @@
 <div id="animatedBackground"></div>
 
     <div id="gameContainer" class="game-container mx-auto flex flex-col items-center">
-        <header class="text-center w-full">
-            <h1 class="text-5xl sm:text-6xl mb-4">אבחון סוכרת</h1>
-            <p class="text-xl sm:text-2xl header-subtext">גרור את הגדרת הסוכרת אל סוג הסוכרת המתאים המופיע למטה</p>
-        </header>
 
-        
-<div id="definitionArea" class="w-full max-w-3xl rounded-3xl min-h-[300px] flex justify-center items-center">
-            <div id="currentDefinition"
-                 class="definition-card w-full text-text-color-primary text-lg font-medium"
-                 draggable="true">
+        <!-- *** מסך פתיחה (Splash Screen) *** -->
+        <div id="splashScreen" class="w-full max-w-3xl text-center p-12 bg-white shadow-2xl rounded-3xl" style="border: 4px solid var(--primary-color);">
+            <h2 class="text-4xl font-extrabold text-primary-color mb-6">אתגר אבחון סוכרת</h2>
+            <p class="text-2xl text-text-dark mb-12 font-medium">גרור את הגדרת הסוכרת אל סוג הסוכרת המתאים המופיע למטה.</p>
+            <button id="startButton" class="text-2xl py-4 px-12 bg-primary-color hover:bg-secondary-color text-white font-bold rounded-full shadow-xl transition duration-300 transform hover:scale-105" style="background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); border: none;">
+                התחל אתגר
+            </button>
+        </div>
+
+        <!-- *** תוכן המשחק הראשי (Main Game Content) - מוסתר בהתחלה *** -->
+        <div id="gameContent" class="w-full flex flex-col items-center hidden">
+
+            <div id="definitionArea" class="w-full max-w-3xl rounded-3xl min-h-[300px] flex justify-center items-center">
+                <div id="currentDefinition"
+                     class="definition-card w-full text-text-color-primary text-lg font-medium"
+                     draggable="true">
+                    
+</div>
+            </div>
+
+            
+<div class="w-full max-w-3xl mt-6">
+                <div id="progressBarContainer" class="h-2 rounded-full overflow-hidden">
+                    <div id="progressBar" class="h-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                </div>
+                <p id="progressText" class="text-center mt-2">0/5 הושלמו</p>
+            </div>
+
+
+            
+<div id="targetsArea" class="w-full grid grid-cols-2 md:grid-cols-5 gap-6 mt-10">
                 
 </div>
         </div>
-
-        
-<div class="w-full max-w-3xl mt-6">
-            <div id="progressBarContainer" class="h-2 rounded-full overflow-hidden">
-                <div id="progressBar" class="h-full transition-all duration-500 ease-out" style="width: 0%"></div>
-            </div>
-            <p id="progressText" class="text-center mt-2">0/5 הושלמו</p>
-        </div>
-
-
-        
-<div id="targetsArea" class="w-full grid grid-cols-2 md:grid-cols-5 gap-6 mt-10">
-            
-</div>
     </div>
 
     
@@ -429,6 +422,12 @@
         const restartButton = document.getElementById('restartButton');
         const TOTAL_DEFINITIONS = definitionsData.length; // 5
         const bodyEl = document.body; // אלמנט body
+
+        // *** אלמנטים חדשים למסך הפתיחה ***
+        const splashScreen = document.getElementById('splashScreen');
+        const startButton = document.getElementById('startButton');
+        const gameContent = document.getElementById('gameContent');
+        // **********************************
 
         /**
          * מערבב מערך באופן אקראי (אלגוריתם Fisher-Yates)
@@ -518,6 +517,11 @@
          * התחלת המשחק: איפוס מצב, ערבוב נתונים והצגת ההגדרה הראשונה
          */
         function startGame() {
+            // *** שינוי חדש: ניהול מסך הפתיחה והתוכן הראשי ***
+            splashScreen.classList.add('hidden');
+            gameContent.classList.remove('hidden');
+            // ******************************************************
+            
             score = 0;
             currentDefinitionIndex = 0;
             isGameActive = true;
@@ -540,6 +544,9 @@
             updateProgress();
             
             resultsModal.classList.add('hidden');
+            
+            // ודא שהמסך גלול לראש הדף
+            window.scrollTo(0, 0);
         }
 
         /**
@@ -664,18 +671,6 @@
 
         // --- מטפלי אירועי מגע (Touch Handlers - Mobile/Tablet) ---
 
-        // Helper to find the element currently under the touch point
-        function getTargetElementFromTouch(e) {
-            const touch = e.changedTouches[0] || e.touches[0];
-            // עלינו להסתיר את הכרטיס הנגרר רגעית כדי לבדוק מה נמצא מתחת לאצבע
-            currentDefinitionEl.style.display = 'none';
-            let targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
-            currentDefinitionEl.style.display = 'flex'; // החזרת הכרטיס
-
-            // החזרת היעד רק אם הוא אלמנט גרירה
-            return targetEl ? targetEl.closest('.character-target') : null;
-        }
-
         function handleTouchStart(e) {
             if (!isGameActive || e.touches.length !== 1) return;
             e.preventDefault(); // מונע גלילה/זום כדי להתחיל בגרירה
@@ -701,30 +696,38 @@
 
         function handleTouchMove(e) {
             if (!isDraggingTouch || e.touches.length !== 1) return;
-            // *** תיקון קריטי: הסרת e.preventDefault() מכאן ***
-            // מאפשר למנגנון הגלילה האוטומטית לעבוד ללא הפרעות, ומייצב את תנועת הכרטיס
-            // e.preventDefault(); // נמחק
-            // ******************************************************
+            // ה-e.preventDefault() הוסר מכאן, מה שמאפשר גלילה תוך כדי תנועה (דרך ה-Auto-Scroll)
 
             const touch = e.touches[0];
             const deltaX = touch.clientX - touchStartX;
             const deltaY = touch.clientY - touchStartY;
             
             // 1. הזזת הכרטיס עם האצבע (יחסית לנקודת ההתחלה)
-            // יש לקחת בחשבון את הגלילה הנוכחית של הדף כדי לחשב את המיקום המוחלט על המסך
-            // מכיוון שהכרטיס הוא fixed, אנו מזיזים אותו רק יחסית למסך (באמצעות delta)
             currentDefinitionEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
             
             // 2. בדיקה ויזואלית: סימון היעד שנמצא מתחת לאצבע
             const targets = document.querySelectorAll('.character-target');
-            const targetEl = getTargetElementFromTouch(e);
+            let currentTarget = null;
             
-            targets.forEach(t => t.classList.remove('drag-over'));
+            targets.forEach(t => {
+                t.classList.remove('drag-over');
+                const rect = t.getBoundingClientRect();
+                
+                // בדיקה אם נקודת המגע נמצאת בתוך גבולות היעד הנוכחי
+                if (
+                    touch.clientX >= rect.left && 
+                    touch.clientX <= rect.right && 
+                    touch.clientY >= rect.top && 
+                    touch.clientY <= rect.bottom
+                ) {
+                    currentTarget = t;
+                }
+            });
             
-            if (targetEl) {
-                targetEl.classList.add('drag-over');
+            if (currentTarget) {
+                currentTarget.classList.add('drag-over');
             }
-
+            
             // 3. לוגיקת גלילה אוטומטית (Auto-Scroll)
             const viewportHeight = window.innerHeight;
             
@@ -746,7 +749,18 @@
             stopAutoScroll(); // עצור כל גלילה אוטומטית פעילה
             
             // מציאת היעד בנקודת השחרור (שימוש ב changedTouches)
-            const targetEl = getTargetElementFromTouch(e);
+            const touch = e.changedTouches[0];
+            let targetEl = null;
+
+            // הסתרת הכרטיס הנגרר לבדיקת האלמנט שמתחתיו
+            currentDefinitionEl.style.display = 'none';
+            // שימוש ב-elementFromPoint לבדיקה מדויקת של יעד השחרור
+            let droppedTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            currentDefinitionEl.style.display = 'flex'; 
+
+            if (droppedTarget) {
+                targetEl = droppedTarget.closest('.character-target');
+            }
             
             // הסרת סגנון הגרירה
             isDraggingTouch = false;
@@ -760,6 +774,11 @@
             if (targetEl) {
                 // שחרור מוצלח: קריאה לפונקציית הליבה
                 processDrop(targetEl, dragTargetType);
+            } else {
+                // אם אין יעד (נשמט בריק), עדיין נחשב כשאלה שהושלמה (כדי להתקדם), אבל ללא ניקוד
+                currentDefinitionIndex++;
+                displayCurrentDefinition();
+                updateProgress();
             }
             
             // ניקוי סגנונות ה-fixed לאחר האנימציה
@@ -778,15 +797,20 @@
         // --- אתחול והפעלת המשחק ---
 
         window.onload = function() {
-            startGame();
+            // הוספה של מאזיני אירועים לכפתורים במסך הפתיחה
+            startButton.addEventListener('click', startGame);
             restartButton.addEventListener('click', startGame);
+
+            // הגדרה ראשונית: הצג מסך פתיחה והסתר תוכן משחק
+            gameContent.classList.add('hidden');
+            splashScreen.classList.remove('hidden');
 
             // הוספת מאזיני אירועי גרירה (Desktop)
             currentDefinitionEl.addEventListener('dragstart', handleDragStart);
 
             // הוספת מאזיני אירועי מגע (Mobile/Tablet)
             currentDefinitionEl.addEventListener('touchstart', handleTouchStart, { passive: false });
-            currentDefinitionEl.addEventListener('touchmove', handleTouchMove); // passive: false נשאר בברירת מחדל אם הוא לא מוגדר מפורשות, אבל הסרנו את preventDefault הפנימי.
+            currentDefinitionEl.addEventListener('touchmove', handleTouchMove);
             currentDefinitionEl.addEventListener('touchend', handleTouchEnd);
         };
         
