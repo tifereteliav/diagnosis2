@@ -40,6 +40,8 @@
             0% { background-position: 0% 0%; }
             100% { background-position: 100% 100%; }
         }
+        
+        /* הורדנו את no-scroll CSS כיוון שאנו משתמשים בגלילה אוטומטית */
 
         body {
             font-family: 'Heebo', sans-serif;
@@ -409,6 +411,11 @@
         let isDraggingTouch = false;
         let touchStartX, touchStartY;
         let originalCardRect; // לשימור מיקום הכרטיס המקורי
+        let autoScrollInterval = null; // משתנה לשמירת הטיימר של הגלילה האוטומטית
+
+        // קבועים לגלילה אוטומטית
+        const SCROLL_THRESHOLD = 50; // מרחק בפיקסלים מהקצה שיתחיל גלילה
+        const SCROLL_SPEED = 15;   // מהירות גלילה בפיקסלים לכל אינטרוול
 
         // אלמנטים DOM
         const definitionArea = document.getElementById('definitionArea');
@@ -421,6 +428,7 @@
         const feedbackTextEl = document.getElementById('feedbackText');
         const restartButton = document.getElementById('restartButton');
         const TOTAL_DEFINITIONS = definitionsData.length; // 5
+        const bodyEl = document.body; // אלמנט body
 
         /**
          * מערבב מערך באופן אקראי (אלגוריתם Fisher-Yates)
@@ -454,7 +462,6 @@
                 currentDefinitionEl.setAttribute('data-type', currentData.type); 
                 currentDefinitionEl.classList.remove('hidden');
                 
-                // ודא שהכרטיס שוב ניתן לגרור ושמקומו שוחזר לאחר סיום גרירה קודמת (במיוחד במגע)
                 // איפוס סגנונות ה-fixed ו-transform לטובת מניעת באגים במעבר בין שאלות
                 currentDefinitionEl.style.transform = '';
                 currentDefinitionEl.style.position = '';
@@ -563,6 +570,8 @@
             feedbackTextEl.textContent = "סיימת את המבחן! הקוד הסודי שלך הוא:";
 
             resultsModal.classList.remove('hidden');
+            
+            stopAutoScroll(); // ודא שגלילה אוטומטית נעצרת
         }
 
         /**
@@ -629,15 +638,39 @@
             // קריאה לפונקציית הליבה
             processDrop(targetEl, dragTargetType);
         }
+        
+        // --- פונקציות גלילה אוטומטית ---
+
+        function startAutoScroll(direction) {
+            // אם טיימר הגלילה כבר פועל, אל תפעיל טיימר חדש
+            if (autoScrollInterval) return;
+
+            autoScrollInterval = setInterval(() => {
+                // כוון את המהירות בהתאם לכיוון (חיובי למטה, שלילי למעלה)
+                const scrollAmount = direction * SCROLL_SPEED;
+                
+                // בצע גלילה
+                window.scrollBy(0, scrollAmount); 
+                
+                // עדכן את מיקום כרטיס ההגדרה הנגרר בזמן הגלילה
+                // ה-position:fixed משאיר אותו במקומו היחסי למסך, אז לא צריך לשנות את ה-transform.
+                
+            }, 50); // קצב רענון מהיר לגלילה חלקה
+        }
+
+        function stopAutoScroll() {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+        }
 
         // --- מטפלי אירועי מגע (Touch Handlers - Mobile/Tablet) ---
 
         // Helper to find the element currently under the touch point
         function getTargetElementFromTouch(e) {
             const touch = e.changedTouches[0] || e.touches[0];
-            // שימוש ב-elementFromPoint כדי למצוא את האלמנט שמתחת לאצבע
-            // חשוב: כרטיס ההגדרה נשלח ל-z-index גבוה, ולכן נחפש מתחתיו
-            // עלינו להסתיר אותו רגעית כדי לבדוק מה נמצא מתחת
+            // עלינו להסתיר את הכרטיס הנגרר רגעית כדי לבדוק מה נמצא מתחת לאצבע
             currentDefinitionEl.style.display = 'none';
             let targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
             currentDefinitionEl.style.display = 'flex'; // החזרת הכרטיס
@@ -671,17 +704,16 @@
 
         function handleTouchMove(e) {
             if (!isDraggingTouch || e.touches.length !== 1) return;
-            e.preventDefault(); // מונע גלילה במהלך תנועת המגע
+            e.preventDefault(); // מונע גלילה במהלך תנועת המגע - חשוב לגרירה מדויקת
 
             const touch = e.touches[0];
             const deltaX = touch.clientX - touchStartX;
             const deltaY = touch.clientY - touchStartY;
             
-            // הזזת הכרטיס עם האצבע
+            // 1. הזזת הכרטיס עם האצבע (יחסית לנקודת ההתחלה)
             currentDefinitionEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
             
-            // בדיקה ויזואלית: סימון היעד שנמצא מתחת לאצבע
-            // שיפור: מנקים קודם את כל הסימונים, ואז מסמנים רק את הנוכחי
+            // 2. בדיקה ויזואלית: סימון היעד שנמצא מתחת לאצבע
             const targets = document.querySelectorAll('.character-target');
             const targetEl = getTargetElementFromTouch(e);
             
@@ -690,11 +722,26 @@
             if (targetEl) {
                 targetEl.classList.add('drag-over');
             }
+
+            // 3. לוגיקת גלילה אוטומטית (Auto-Scroll)
+            const viewportHeight = window.innerHeight;
+            
+            if (touch.clientY < SCROLL_THRESHOLD) {
+                // גלילה למעלה: כיוון -1
+                startAutoScroll(-1);
+            } else if (touch.clientY > viewportHeight - SCROLL_THRESHOLD) {
+                // גלילה למטה: כיוון 1
+                startAutoScroll(1);
+            } else {
+                // עצירת גלילה
+                stopAutoScroll();
+            }
         }
 
         function handleTouchEnd(e) {
             if (!isDraggingTouch) return;
-            // אין צורך ב-e.preventDefault() כאן, אבל משתמשים ב-e.changedTouches
+            
+            stopAutoScroll(); // עצור כל גלילה אוטומטית פעילה
             
             // מציאת היעד בנקודת השחרור (שימוש ב changedTouches)
             const targetEl = getTargetElementFromTouch(e);
@@ -713,7 +760,7 @@
                 processDrop(targetEl, dragTargetType);
             }
             
-            // ניקוי סגנונות ה-fixed לאחר האנימציה, כדי שה-displayCurrentDefinition יוכל להציג את ההגדרה הבאה כרגיל
+            // ניקוי סגנונות ה-fixed לאחר האנימציה
             setTimeout(() => {
                 currentDefinitionEl.style.position = '';
                 currentDefinitionEl.style.top = '';
@@ -736,7 +783,6 @@
             currentDefinitionEl.addEventListener('dragstart', handleDragStart);
 
             // הוספת מאזיני אירועי מגע (Mobile/Tablet)
-            // שימו לב: הוספתי { passive: false } ל-touchstart ול-touchmove כדי לוודא ש-preventDefault עובד
             currentDefinitionEl.addEventListener('touchstart', handleTouchStart, { passive: false });
             currentDefinitionEl.addEventListener('touchmove', handleTouchMove, { passive: false });
             currentDefinitionEl.addEventListener('touchend', handleTouchEnd);
