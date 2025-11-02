@@ -660,6 +660,7 @@
 
             isDraggingTouch = true;
             // *** תיקון קריטי: ודא שאתה קורא את ה-data-type מהכרטיס הראשי ***
+            // e.target לא תמיד יהיה הכרטיס הראשי, לכן נשתמש באלמנט המוגדר מראש
             dragTargetType = currentDefinitionEl.getAttribute('data-type');
             
             // שמירת מיקום מקורי ונקודת התחלה
@@ -667,6 +668,7 @@
             
             // מעבר למיקום קבוע (fixed) כדי לאפשר גרירה מחוץ לקונטיינר
             currentDefinitionEl.style.position = 'fixed';
+            // נשתמש במיקום המקורי ב-Viewport (top/left)
             currentDefinitionEl.style.top = originalCardRect.top + 'px';
             currentDefinitionEl.style.left = originalCardRect.left + 'px';
             currentDefinitionEl.style.width = originalCardRect.width + 'px';
@@ -682,7 +684,7 @@
             
             // 1. הזזת הכרטיס
             
-            // השתמש ב-touch.clientX, touch.clientY כדי למקם את המרכז של הכרטיס במיקום האצבע
+            // ממקם את מרכז הכרטיס במיקום האצבע
             currentDefinitionEl.style.left = `${touch.clientX - originalCardRect.width / 2}px`;
             currentDefinitionEl.style.top = `${touch.clientY - originalCardRect.height / 2}px`;
             
@@ -728,33 +730,38 @@
                 targetEl = droppedTarget.closest('.character-target');
             }
             
-            // הסרת סגנון הגרירה והחזרת הכרטיס למקומו המקורי
+            // הסרת סגנון הגרירה
             isDraggingTouch = false;
             currentDefinitionEl.classList.remove('is-dragging');
-            document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
-
+            
             // החזרת הכרטיס למקומו המקורי עם אנימציה
             currentDefinitionEl.style.transition = 'transform 0.3s ease-out, left 0.3s ease-out, top 0.3s ease-out';
             
-            // *** תיקון: החזרת המיקום הקבוע למיקום המקורי לפני הטרנספורמציה ***
-            // אם לא נפטרנו מה-transform ב-displayCurrentDefinition, נשתמש בטרנספורם
-            currentDefinitionEl.style.transform = `translate(0, 0)`; 
+            // כדי לחזור למיקום המקורי ב-definitionArea, אנו מנקים את המיקום הקבוע
+            currentDefinitionEl.style.transform = ``; 
             currentDefinitionEl.style.left = originalCardRect.left + 'px';
             currentDefinitionEl.style.top = originalCardRect.top + 'px';
             
-            // *** לוגיקת הניקוד והתקדמות ***
+            // *** לוגיקת ההדגשה, הניקוד והתקדמות ***
             if (targetEl) {
-                // אם נפלנו על יעד (נכון או שגוי), processDrop מטפל בניקוד, פלאש והתקדמות
-                processDrop(targetEl, dragTargetType); 
+                // אם נפלנו על יעד, processDrop מטפל בניקוד, מפעיל את ה-success-flash והתקדמות
+                processDrop(targetEl, dragTargetType);
+                
+                // *** שיפור ויזואלי: מנקה את ה-drag-over רק לאחר שה-processDrop הפעיל את ה-flash ***
+                // ה-processDrop כבר מטפל בניקוי ה-drag-over וה-flash ב-setTimeout
+                
             } else {
-                // אם פספסנו את היעד, מתקדמים לשאלה הבאה ללא ניקוד
+                // אם פספסנו את היעד, מוודאים שכל סימון ויזואלי שהיה (למשל אם עצרנו מעל יעד ואז זזנו) הוסר
+                document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
+                
+                // מתקדמים לשאלה הבאה ללא ניקוד
                 currentDefinitionIndex++;
                 displayCurrentDefinition();
                 updateProgress();
             }
             // **********************************
 
-            // ניקוי סגנונות ה-fixed לאחר האנימציה
+            // ניקוי סגנונות ה-fixed לאחר האנימציה (300ms)
             setTimeout(() => {
                 currentDefinitionEl.style.position = '';
                 currentDefinitionEl.style.top = '';
