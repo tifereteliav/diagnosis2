@@ -3,839 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>אבחון סוכרת - כנס חדשנות</title>
-    
-<script src="https://cdn.tailwindcss.com"></script>
-    
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>אתגר הסוכרת - כניסה</title>
+    <!-- טעינת Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- טעינת Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <style>
-        /* הגדרת גופנים וסגנונות כלליים */
-        :root {
-            --primary-color: #4f46e5; /* Indigo-600 */
-            --secondary-color: #1e40af; /* Blue-800 */
-            --accent-color: #06b6d4; /* Cyan-500 (Neon Blue) */
-            --bg-light: #f3f4f6; /* רקע בהיר */
-            --text-dark: #1f2937; /* טקסט כהה לקריאות */
-            --text-muted: #6b7280; /* אפור בינוני לטקסט משני */
-            --card-bg-light: #ffffff; /* רקע כרטיס לבן */
-            --border-color-light: #d1d5db; /* גבול אפור עדין */
-            --neon-glow: rgba(6, 182, 212, 0.5); /* זוהר טורקיז להדגשה */
-            --error-color: #ef4444; /* Red-500 - נשאר למקרה שנרצה אותו מאוחר יותר */
-            --neutral-flash-bg: #e0f7fa; /* רקע ניטרלי כחול בהיר */
-            --neutral-flash-border: #06b6d4; /* גבול ניטרלי טורקיז */
-            --neutral-text-color: #1e40af; /* טקסט ניטרלי כחול כהה */
-        }
-        
-        /* רקע עם אלמנטים זזים */
-        #animatedBackground {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 90%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
-            background-size: 400% 400%;
-            animation: subtlePulse 30s ease infinite alternate;
+        /* הגדרת פונט Inter כברירת מחדל */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* רקע מרהיב עם גרדיאנט עמוק */
+            background: linear-gradient(135deg, #1f2937, #111827);
+            min-height: 100vh;
+            overflow: hidden; /* מונע גלילה כתוצאה מהאלמנטים החיצוניים */
         }
 
-        @keyframes subtlePulse {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
+        /* סגנון לקלפים בסגנון Glassmorphism */
+        .glass-card {
+            /* אפקט טשטוש ליצירת מראה זכוכית */
+            backdrop-filter: blur(10px);
+            /* רקע שקוף למחצה */
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            /* מעבר חלק לכל האפקטים */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative; /* לוודא שהכרטיסים מעל ה-blobs */
         }
-        
-        body {
-            font-family: 'Heebo', sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            direction: rtl; 
-            line-height: 1.6;
-            min-height: 100vh;
-            overflow-x: hidden; /* מונע גלילה אופקית בזמן גרירה */
+
+        /* אפקטי ריחוף מעודנים */
+        .glass-card:hover {
+            transform: translateY(-8px) scale(1.02); /* קופץ מעט למעלה וגדל */
+            box-shadow: 0 15px 40px 0 rgba(103, 232, 249, 0.5); /* צל מודגש בגוון תכלת-ציאן */
+            border-color: #67e8f9; /* גבול בצבע תכלת */
         }
-        .game-container {
-            max-width: 1400px;
-            width: 100%;
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 2rem;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); 
-            padding: 2.5rem 2rem;
-            gap: 2.5rem;
-            animation: fadeIn 0.8s ease-out;
-            margin-top: 2rem; 
-            margin-bottom: 2rem; 
-        }
+
+        /* אנימציה עדינה לכותרת */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* כרטיס הגדרות - קונטרסט גבוה */
-        .definition-card {
-            cursor: grab;
-            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out, border-color 0.3s ease-out, opacity 0.3s;
-            background-color: var(--card-bg-light); 
-            border: 2px solid var(--primary-color); 
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 0 8px rgba(79, 70, 229, 0.3);
-            padding: 2.5rem;
-            min-height: 280px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            color: var(--text-dark);
-            animation: slideInUp 0.6s ease-out;
-            touch-action: none; /* קריטי למובייל: מונע אירועי דפדפן ברירת מחדל */
-        }
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .definition-card:active, .is-dragging {
-            cursor: grabbing;
-            transform: scale(1.02);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25), 0 0 15px var(--accent-color);
-            border-color: var(--accent-color);
-        }
-        .definition-card.is-dragging {
-            opacity: 0.9;
-            /* קריטי: הופך את האלמנט השקוף לאירועי מגע כדי לאפשר זיהוי יעד שמתחתיו */
-            pointer-events: none; 
-        }
-        .definition-card span.text-xl {
-            color: var(--accent-color);
-            font-weight: 700;
-            margin-bottom: 1rem;
-            text-shadow: none;
-        }
-        .definition-card p {
-            font-size: 1.35rem; 
-            line-height: 1.7;
-            color: var(--text-dark); 
+        #main-header {
+            animation: fadeIn 1s ease-out forwards;
         }
 
-        /* יעדי גרירה (הדמויות) - עיצוב בולט יותר */
-        .character-target {
-            transition: transform 0.25s ease-out, box-shadow 0.25s ease-out, background-color 0.25s ease-out, border-color 0.25s ease-out;
-            border: 3px solid var(--primary-color); 
-            background-color: var(--card-bg-light); 
-            border-radius: 1.5rem;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); 
-            opacity: 1;
-            cursor: default;
-            padding: 1.5rem;
-            min-height: 180px;
-            color: var(--text-dark);
-        }
-        .character-target:hover {
-            transform: translateY(-5px); 
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25), 0 0 15px var(--neon-glow);
-            border-color: var(--accent-color);
-        }
-        .character-target .text-5xl { 
-            font-size: 5rem;
-            margin-bottom: 0.75rem;
-            line-height: 1;
-        }
-        .character-target p.text-lg { 
-            color: var(--secondary-color); 
-            font-weight: 800;
-            margin-top: 0.5rem;
-            font-size: 1.3rem;
-        }
-        .character-target p.text-sm { 
-            color: var(--text-muted);
-            font-weight: 400;
-            margin-top: 0.25rem;
+        /* --- אפקטי רקע חדשים --- */
+        
+        /* אנימציית תזוזה איטית לרקע */
+        @keyframes blob-move {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -30px) scale(1.1); }
+            50% { transform: translate(-50px, 50px) scale(0.9); }
+            75% { transform: translate(30px, -50px) scale(1.05); }
         }
 
-        /* סגנון כשהכרטיס נגרר מעל היעד */
-        .drag-over {
-            transform: scale(1.08) translateY(-8px); 
-            box-shadow: 0 0 30px 10px var(--neon-glow), inset 0 0 0 3px var(--accent-color); 
-            border-color: var(--accent-color) !important;
-            opacity: 1;
-            background-color: var(--neutral-flash-bg) !important;
-        }
-
-        /* סגנון הבזק ניטרלי (הדגשת בחירה) */
-        .character-target.success-flash {
-            animation: flash-effect 0.4s ease-out;
-            border-color: var(--neutral-flash-border);
-            background-color: var(--neutral-flash-bg);
-            box-shadow: 0 0 20px 8px var(--neon-glow);
+        /* סגנון ל"בועות" הרקע המרחפות */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(150px); /* טשטוש חזק ליצירת אפקט רך */
+            opacity: 0.4; /* שקיפות עדינה */
+            z-index: 0; /* נשאר מאחורי התוכן */
+            animation: blob-move 20s infinite alternate ease-in-out; /* אנימציה אינסופית ואיטית */
         }
         
-        @keyframes flash-effect {
-            0% { transform: scale(0.98); opacity: 0.9; box-shadow: 0 0 15px 5px var(--neon-glow); }
-            50% { transform: scale(1.03); opacity: 1; box-shadow: 0 0 25px 8px var(--neon-glow); }
-            100% { transform: scale(1); opacity: 1; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); }
+        /* מיקום בועה 1 - תכלת */
+        #blob1 {
+            left: -10%;
+            top: -10%;
+            animation-delay: 0s;
         }
         
-        /* סגנון הבזק שגוי (אדום) - נשאר כגיבוי אך לא בשימוש בלוגיקה הנוכחית */
-        .character-target.error-flash {
-             /* *** סגנון נייטרלי זהה ל-success-flash *** */
-            animation: flash-effect 0.4s ease-out;
-            border-color: var(--neutral-flash-border);
-            background-color: var(--neutral-flash-bg);
-            box-shadow: 0 0 20px 8px var(--neon-glow);
+        /* מיקום בועה 2 - סגול */
+        #blob2 {
+            right: -10%;
+            bottom: -10%;
+            animation-delay: 10s; /* מתחיל בחצי מחזור */
         }
-        
-
-        /* מד התקדמות */
-        #progressBarContainer {
-            background-color: var(--border-color-light);
-            border-radius: 9999px;
-            height: 10px;
-            box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.1);
-        }
-        #progressBar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
-            border-radius: 9999px;
-            box-shadow: 0 0 5px var(--accent-color); 
-        }
-
-        /* מודאל תוצאות - נשאר כהה לאפקט דרמטי */
-        .results-modal {
-            background-color: rgba(0, 0, 0, 0.98); 
-        }
-        .results-card {
-            background: #1e293b;
-            border-radius: 2rem;
-            box-shadow: 0 30px 100px rgba(0, 0, 0, 1), inset 0 0 0 4px var(--accent-color);
-            padding: 3rem;
-            color: white;
-            animation: modalPopIn 0.5s ease-out;
-            max-width: 90%; 
-        }
-        @keyframes modalPopIn {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .results-card h2 {
-            color: var(--primary-color);
-            font-weight: 800;
-            text-shadow: 0 0 15px rgba(99, 102, 241, 0.8);
-        }
-        .results-card p#finalScore {
-            color: var(--accent-color);
-            font-weight: 800;
-            font-size: 5rem;
-            letter-spacing: 0.1em;
-            margin-bottom: 2.5rem;
-            text-shadow: 0 0 25px var(--accent-color);
-        }
-        .results-card button#restartButton {
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)) !important;
-            color: white !important;
-            font-weight: 700;
-            padding: 1rem 2.5rem;
-            border-radius: 9999px;
-            box-shadow: 0 12px 35px rgba(79, 70, 229, 0.7);
-            transition: all 0.3s ease-in-out;
-            border: none;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-        }
-        .results-card button#restartButton:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 20px 50px rgba(79, 70, 229, 0.8), 0 0 25px var(--accent-color);
-            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color)) !important; 
-        }
-
-        /* התאמות למובייל (מסכים קטנים מ-640px) */
-        @media (max-width: 639px) {
-            .game-container {
-                gap: 1.5rem; 
-                padding: 1.5rem 1rem;
-            }
-            
-            .definition-card {
-                padding: 1rem;
-                min-height: 160px;
-            }
-            
-            .definition-card p {
-                font-size: 1.15rem; /* גודל גופן משופר לקריאה במובייל */
-                line-height: 1.5;
-            }
-            
-            /* *** תיקון קריטי: מעבר לטור יחיד במובייל *** */
-            #targetsArea {
-                grid-template-columns: 1fr; /* טור יחיד לרוחב מלא */
-                gap: 1rem; 
-                margin-top: 1.5rem;
-            }
-            .character-target .text-5xl { 
-                font-size: 4rem; 
-            }
-
-            /* *** הוספת התאמה למודאל התוצאות במובייל *** */
-            .results-card {
-                padding: 2rem 1.5rem; /* הקטנת ריפוד */
-            }
-            .results-card h2 {
-                font-size: 2.5rem; /* הקטנת כותרת */
-            }
-            .results-card p#finalScore {
-                font-size: 3.5rem; /* הקטנת קוד סודי */
-                margin-bottom: 2rem;
-            }
-        }
+        /* --- סוף אפקטי רקע חדשים --- */
     </style>
 </head>
-<body class="p-4 sm:p-8">
+<body class="flex items-center justify-center p-4 relative">
     
-<div id="animatedBackground"></div>
-
-    <div id="gameContainer" class="game-container mx-auto flex flex-col items-center">
-
-        <!-- *** מסך פתיחה (Splash Screen) *** -->
-        <div id="splashScreen" class="w-full max-w-3xl text-center p-12 bg-white shadow-2xl rounded-3xl" style="border: 4px solid var(--primary-color);">
-            <h2 class="text-4xl font-extrabold text-primary-color mb-6">אתגר אבחון סוכרת</h2>
-            <p class="text-2xl text-text-dark mb-12 font-medium">גרור את הגדרת הסוכרת אל סוג הסוכרת המתאים המופיע למטה.</p>
-            <button id="startButton" class="text-2xl py-4 px-12 bg-primary-color hover:bg-secondary-color text-white font-bold rounded-full shadow-xl transition duration-300 transform hover:scale-105" style="background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); border: none;">
-                התחל אתגר
-            </button>
-        </div>
-
-        <!-- *** תוכן המשחק הראשי (Main Game Content) - מוסתר בהתחלה *** -->
-        <div id="gameContent" class="w-full flex flex-col items-center hidden">
-
-            <div id="definitionArea" class="w-full max-w-3xl rounded-3xl min-h-[300px] flex justify-center items-center">
-                <div id="currentDefinition"
-                     class="definition-card w-full text-text-color-primary text-lg font-medium"
-                     draggable="true">
-                    <!-- תוכן ההגדרה יוכנס כאן באמצעות JS -->
-                </div>
-            </div>
-
-            
-            <div class="w-full max-w-3xl mt-6">
-                <div id="progressBarContainer" class="h-2 rounded-full overflow-hidden">
-                    <div id="progressBar" class="h-full transition-all duration-500 ease-out" style="width: 0%"></div>
-                </div>
-                <p id="progressText" class="text-center mt-2">0/5 הושלמו</p>
-            </div>
-
-
-            
-            <div id="targetsArea" class="w-full grid grid-cols-2 md:grid-cols-5 gap-6 mt-10">
-                <!-- יעדי הגרירה יוכנסו כאן באמצעות JS -->
-            </div>
-        </div>
-    </div>
-
+    <!-- אפקטים חדשניים ברקע: בועות צבעוניות מטושטשות -->
+    <div id="blob1" class="blob w-96 h-96 bg-cyan-500"></div>
+    <div id="blob2" class="blob w-80 h-80 bg-purple-500"></div>
     
-    <div id="resultsModal" class="results-modal fixed inset-0 flex items-center justify-center p-4 hidden z-[100]">
-        <div class="results-card w-full max-w-md text-center">
-            <h2 class="text-4xl font-extrabold mb-4">המשחק הסתיים!</h2>
-            <p id="feedbackText" class="text-xl text-text-color-secondary mb-6">הקוד הסודי שלך הוא:</p>
-            <p id="finalScore" class="text-5xl font-bold mb-8">DiaXXXX</p>
-            <button id="restartButton" class="font-bold py-3 px-6 rounded-full shadow-xl">
-                שחק שוב
-            </button>
+    <div class="max-w-4xl w-full mx-auto p-8 md:p-12 text-center relative z-10"> <!-- z-10 מבטיח שהתוכן מעל הבועות -->
+
+        <!-- כותרת ראשית -->
+        <h1 id="main-header" class="text-5xl md:text-6xl font-extrabold text-white mb-10 md:mb-16 tracking-tight opacity-0">
+            ברוכים הבאים לאתגר האינטראקטיבי
+        </h1>
+        
+        <!-- כותרת משנית/נושא הכנס -->
+        <p class="text-xl text-gray-300 mb-2 max-w-2xl mx-auto">
+            "סוכרת במציאות משתנה, אתגרים, פריצות דרך וחדשנות"
+        </p>
+        
+        <!-- תאריך -->
+        <p class="text-lg text-cyan-400 mb-12 max-w-2xl mx-auto font-semibold">
+            10.11.25
+        </p>
+
+        <!-- מיכל הכרטיסים הראשי -->
+        <div class="flex flex-col md:flex-row gap-8 justify-center">
+
+            <!-- כרטיס 1: אתר אתגר הכנס -->
+            <a href="https://diabetes-challenge-n.vercel.app" target="_blank"
+               class="glass-card flex-1 p-8 rounded-3xl text-white block cursor-pointer transition duration-300 
+                      hover:bg-opacity-20 hover:ring-4 hover:ring-cyan-500 hover:ring-opacity-50">
+                <div class="flex items-center justify-center mb-4">
+                    <!-- אייקון חץ (SVG מובנה) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-cyan-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold">
+                    לאתר אתגר הכנס
+                </h2>
+            </a>
+
+            <!-- כרטיס 2: כניסה לאתגר הראשון -->
+            <a href="https://type-match-game.lovable.app" target="_blank"
+               class="glass-card flex-1 p-8 rounded-3xl text-white block cursor-pointer transition duration-300 
+                      hover:bg-opacity-20 hover:ring-4 hover:ring-purple-500 hover:ring-opacity-50">
+                <div class="flex items-center justify-center mb-4">
+                    <!-- אייקון כניסה (SVG מובנה) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-purple-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.375l-7.534-1.205L4.5 18V6l3.556 5.864 7.534-1.205Z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold">
+                    כניסה לאתגר הראשון
+                </h2>
+            </a>
         </div>
+        
+        <footer class="mt-16 text-gray-500 text-sm">
+            &copy; 2025 אתגר הסוכרת של הכנס. כל הזכויות שמורות.
+        </footer>
+
     </div>
 
     <script>
-        // הגדרת נתוני המשחק המקוריים (5 הגדרות, 1 לכל סוג)
-        const definitionsData = [
-            // סוכרת סוג 1 (איש רזה)
-            {
-                type: "סוכרת סוג 1",
-                label: "(Type 1)",
-                definition: "מחלה אוטואימונית המאופיינת בהרס תאי בטא בלבלב, הגורם לחוסר מוחלט או כמעט מוחלט באינסולין. לרוב מתפתחת בילדים ובצעירים, אך יכולה להופיע בכל גיל. נדרשת טיפול באינסולין לכל החיים. מאופיינת בנוכחות נוגדנים עצמיים (למשל GAD, IA-2, ZnT8) ובנטייה לקטואצידוזיס.",
-                emoji: "🏃‍♂️" 
-            },
-            // סוכרת סוג 2 (איש שמן מרים משקולות)
-            {
-                type: "סוכרת סוג 2",
-                label: "(Type 2)",
-                definition: "מחלה מטבולית המאופיינת בעמידות לאינסולין, לרוב אצל מבוגרים, אך שכיחותה עולה גם בגיל צעיר. קשורה להשמנה ולגורמים גנטיים, ומטופלת לרוב בשינוי אורח חיים ותרופות פומיות, ולעיתים באינסולין.",
-                emoji: "🏋️‍♂️" 
-            },
-            // MODY (אישה ממוצעת)
-            {
-                type: "MODY",
-                label: "(MODY)",
-                definition: "סוכרת מונוגנית, לרוב עם הופעה בגיל צעיר (לפני גיל 25), הנגרמת ממוטציה גנטית בגן יחיד, ומאופיינת בהפרעה בהפרשת אינסולין ללא עמידות לאינסולין. מועברת בתורשה אוטוזומלית דומיננטית, ולרוב אינה דורשת טיפול באינסולין.",
-                emoji: "👩"
-            },
-            // LADA (אישה רזה)
-            {
-                type: "LADA",
-                label: "(LADA)",
-                definition: "סוכרת אוטואימונית עם הופעה בגיל מבוגר (לרוב מעל גיל 30), בעלת מאפיינים קליניים של סוכרת סוג 2 אך עם נוכחות נוגדנים עצמיים. מתאפיינת בהתקדמות איטית יחסית לחוסר אינסולין, ולעיתים נדרשת טיפול באינסולין תוך מספר שנים.",
-                emoji: "🧘‍♀️"
-            },
-            // סוכרת הריון (אישה בהריון)
-            {
-                type: "סוכרת הריון",
-                label: "(Gestational)",
-                definition: "מצב של היפרגליקמיה המאובחן לראשונה במהלך ההריון, שאינו עומד בקריטריונים של סוכרת טרום-הריון. לרוב מתפתח בשל עמידות לאינסולין פיזיולוגית בהריון, כאשר הלבלב אינו מצליח להפריש מספיק אינסולין. מאובחן באמצעות העמסת סוכר (OGTT) ומטופל בשינוי אורח חיים ולעיתים באינסולין",
-                emoji: "🤰"
-            }
-        ];
-
-        // משתני מצב המשחק
-        let gameData = []; // הנתונים המעורבבים והמעודכנים
-        let currentDefinitionIndex = 0;
-        let score = 0; 
-        let isGameActive = false;
-        let dragTargetType = null; 
-        
-        // משתני מצב מגע (Touch)
-        let isDraggingTouch = false;
-        let touchStartX, touchStartY; // *** הצהרה נוספת ***
-        let originalCardRect; // לשימור מיקום הכרטיס המקורי
-        let autoScrollInterval = null; // משתנה לשמירת הטיימר של הגלילה האוטומטית
-
-        // קבועים לגלילה אוטומטית
-        const SCROLL_THRESHOLD = 50; // מרחק בפיקסלים מהקצה שיתחיל גלילה
-        const SCROLL_SPEED = 15;    // מהירות גלילה בפיקסלים לכל אינטרוול
-
-        // אלמנטים DOM
-        const definitionArea = document.getElementById('definitionArea');
-        const currentDefinitionEl = document.getElementById('currentDefinition');
-        const targetsArea = document.getElementById('targetsArea');
-        const progressBar = document.getElementById('progressBar');
-        const progressText = document.getElementById('progressText');
-        const resultsModal = document.getElementById('resultsModal');
-        const finalScoreEl = document.getElementById('finalScore');
-        const feedbackTextEl = document.getElementById('feedbackText');
-        const restartButton = document.getElementById('restartButton');
-        const TOTAL_DEFINITIONS = definitionsData.length; // 5
-        const bodyEl = document.body; // אלמנט body
-
-        // אלמנטים חדשים למסך הפתיחה
-        const splashScreen = document.getElementById('splashScreen');
-        const startButton = document.getElementById('startButton');
-        const gameContent = document.getElementById('gameContent');
-        
-
-        /**
-         * מערבב מערך באופן אקראי (אלגוריתם Fisher-Yates)
-         */
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-        
-        /**
-         * עדכון מד ההתקדמות והטקסט הנלווה
-         */
-        function updateProgress() {
-            const completed = currentDefinitionIndex;
-            const percentage = (completed / TOTAL_DEFINITIONS) * 100;
-
-            progressBar.style.width = `${percentage}%`;
-            progressText.textContent = `${completed}/${TOTAL_DEFINITIONS} הושלמו`;
-        }
-
-        /**
-         * הצגת ההגדרה הנוכחית
-         */
-        function displayCurrentDefinition() {
-            if (currentDefinitionIndex < TOTAL_DEFINITIONS) {
-                const currentData = gameData[currentDefinitionIndex];
-                currentDefinitionEl.innerHTML = `<span class="text-xl">הגדרה מספר ${currentDefinitionIndex + 1}</span><p class="mt-4">${currentData.definition}</p>`;
-                currentDefinitionEl.setAttribute('data-type', currentData.type); 
-                currentDefinitionEl.classList.remove('hidden');
-                
-                // איפוס סגנונות מיקום זמניים והחזרת נראות רגילה
-                currentDefinitionEl.style.transform = '';
-                currentDefinitionEl.style.position = '';
-                currentDefinitionEl.style.top = '';
-                currentDefinitionEl.style.left = '';
-                currentDefinitionEl.style.width = '';
-                currentDefinitionEl.style.zIndex = '';
-                currentDefinitionEl.style.transition = '';
-                currentDefinitionEl.style.pointerEvents = 'auto'; // ודא שאירועי מצביע מופעלים
-            } else {
-                // הסתרת כרטיס הגרירה והצגת הודעת סיום באזור ההגדרה
-                currentDefinitionEl.classList.add('hidden');
-                definitionArea.innerHTML = `<p class="text-2xl font-semibold text-text-muted">כל הכבוד! סיימת את כל ההגדרות.</p>`;
-                endGame();
-            }
-        }
-
-        /**
-         * אתחול יעדי הגרירה (הדמויות)
-         */
-        function initTargets() {
-            targetsArea.innerHTML = '';
-            // יצירת מערך של יעדים ייחודיים (5 סוגי סוכרת)
-            const uniqueTargets = definitionsData.filter((item, index, self) => 
-                index === self.findIndex((t) => (
-                    t.type === item.type
-                ))
-            );
+        // הוספת אפקט של 'הטיה' קלה באמצעות JavaScript ו-CSS Variables על ריחוף מעל הכרטיס
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.glass-card');
             
-            const shuffledTargets = shuffleArray(uniqueTargets); 
-            
-            shuffledTargets.forEach(data => {
-                const targetEl = document.createElement('div');
-                targetEl.id = `target-${data.type.replace(/\s/g, '-')}`;
-                targetEl.setAttribute('data-type', data.type);
-                // הוספת flex-grow כדי שיכיל את התוכן הנוסף
-                targetEl.classList.add('character-target', 'flex', 'flex-col', 'items-center', 'justify-start', 'text-center');
-                
-                // הוספת placeholder לתוכן שיוכנס
-                targetEl.innerHTML = `
-                    <div class="text-5xl mb-2">${data.emoji}</div>
-                    <p class="text-lg font-bold">${data.type}</p>
-                    <p class="text-sm mb-2">${data.label}</p>
-                    <div class="definition-placeholder w-full h-auto mt-2 border-t pt-2 text-xs text-gray-700 transition-all duration-300">
-                        <span class="text-gray-400">--- גרור הגדרה לכאן ---</span>
-                    </div>
-                `;
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    // חישוב הטיה עדינה
+                    const rotateX = (centerY - y) / 25; // רגישות של 25
+                    const rotateY = (x - centerX) / 25;
+                    
+                    card.style.transform = `perspective(1000px) scale(1.02) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                });
 
-                // הוספת מאזיני אירועי גרירה (Desktop)
-                targetEl.addEventListener('dragover', handleDragOver);
-                targetEl.addEventListener('dragleave', handleDragLeave);
-                targetEl.addEventListener('drop', handleDrop);
-                
-                targetsArea.appendChild(targetEl);
+                card.addEventListener('mouseleave', () => {
+                    // חזרה למצב רגיל
+                    // משתמשים במעבר חלק (transition) ב-CSS
+                    card.style.transform = `perspective(1000px) translateY(0) scale(1) rotateX(0deg) rotateY(0deg)`;
+                });
             });
-        }
-
-        /**
-         * התחלת המשחק: איפוס מצב, ערבוב נתונים והצגת ההגדרה הראשונה
-         */
-        function startGame() {
-            splashScreen.classList.add('hidden');
-            gameContent.classList.remove('hidden');
-            
-            score = 0;
-            currentDefinitionIndex = 0;
-            isGameActive = true;
-            
-            // שחזור מבנה definitionArea כדי לאפשר משחק חוזר
-            if (!definitionArea.contains(currentDefinitionEl)) {
-                definitionArea.innerHTML = ''; 
-                definitionArea.appendChild(currentDefinitionEl);
-            }
-            currentDefinitionEl.classList.remove('hidden'); 
-            
-            // יצירת עותק מעורבב של 5 ההגדרות
-            gameData = shuffleArray([...definitionsData]); 
-
-            // איפוס יעדים והצגתם
-            initTargets();
-            
-            // הצגת ההגדרה הראשונה
-            displayCurrentDefinition();
-            updateProgress();
-            
-            resultsModal.classList.add('hidden');
-            
-            // ודא שהמסך גלול לראש הדף
-            window.scrollTo(0, 0);
-        }
-
-        /**
-         * סיום המשחק והצגת הקוד הסודי
-         */
-        function endGame() {
-            isGameActive = false;
-            
-            // המרה של הציון (מספר התאמות נכונות מתוך 5) לקוד סודי
-            let finalCode = '';
-            
-            // הניקוד הוא מ-0 עד 5
-            if (score === 5) {
-                finalCode = 'Dia2001'; // 100%
-            } else if (score === 4) {
-                finalCode = 'Dia2008'; // 80%
-            } else if (score === 3) {
-                finalCode = 'Dia2006'; // 60%
-            } else if (score === 2) {
-                finalCode = 'Dia2004'; // 40%
-            } else {
-                // 0 או 1
-                finalCode = 'Dia2002'; // 0%-20%
-            }
-            
-            // עדכון ה-DOM להצגת הקוד
-            finalScoreEl.textContent = finalCode;
-            feedbackTextEl.textContent = "סיימת את המבחן! הקוד הסודי שלך הוא:";
-
-            resultsModal.classList.remove('hidden');
-            
-            stopAutoScroll(); // ודא שגלילה אוטומטית נעצרת
-        }
-
-        /**
-         * פונקציית ליבה לעיבוד אירוע שחרור (משותפת ל-Drop ול-Touch End)
-         * מטפלת בניקוד, אפקט ויזואלי והתקדמות לשאלה הבאה.
-         */
-        function processDrop(targetEl, draggedType) {
-            if (!targetEl) return; 
-
-            const targetType = targetEl.getAttribute('data-type'); 
-            let isCorrect = (draggedType === targetType);
-            const currentDefinitionData = gameData[currentDefinitionIndex];
-            const definitionText = currentDefinitionData.definition;
-            const placeholderEl = targetEl.querySelector('.definition-placeholder');
-            
-            // 1. בדיקת נכונות ועדכון הציון באופן סמוי
-            if (isCorrect) {
-                score++;
-                // אין צורך ב-success-flash כי אנו משתמשים בו כאינדיקציה נייטרלית
-            } 
-            
-            // *** 2. הצגת ההגדרה הקטנה בתוך היעד (צבע ניטרלי כחול/טורקיז) ***
-            // נציג רק חלק קטן מהטקסט
-            const contentHTML = `
-                <p class="text-xs text-right px-1 py-0.5 rounded-md shadow-sm transition-all duration-300 transform scale-95" 
-                   style="background-color: var(--neutral-flash-bg); color: var(--neutral-text-color); border: 1px solid var(--neutral-flash-border); font-weight: 500; opacity: 1;">
-                    ${definitionText.substring(0, 75)}...
-                </p>
-            `;
-            placeholderEl.innerHTML = contentHTML;
-            
-            // 3. הפעלת הבזק ניטרלי (הדגשה שהבחירה נקלטה)
-            targetEl.classList.add('success-flash'); 
-
-            // 4. הסתרת הכרטיס הנגרר מיד ונטרול אירועים
-            currentDefinitionEl.classList.add('hidden'); 
-            currentDefinitionEl.classList.remove('is-dragging'); 
-            document.querySelectorAll('.character-target').forEach(t => t.style.pointerEvents = 'none');
-            currentDefinitionEl.style.pointerEvents = 'none'; 
-
-            // 5. ניקוי וקידום לאחר חצי שנייה (500ms)
-            setTimeout(() => {
-                targetEl.classList.remove('drag-over', 'success-flash', 'error-flash'); 
-
-                // החזרת אירועי מצביע
-                document.querySelectorAll('.character-target').forEach(t => t.style.pointerEvents = 'auto');
-                
-                // ניקוי סגנונות מיקום קבוע
-                currentDefinitionEl.style.position = '';
-                currentDefinitionEl.style.top = '';
-                currentDefinitionEl.style.left = '';
-                currentDefinitionEl.style.width = '';
-                currentDefinitionEl.style.zIndex = '';
-                currentDefinitionEl.style.transition = '';
-                currentDefinitionEl.style.transform = ''; 
-                
-                currentDefinitionIndex++;
-                displayCurrentDefinition();
-                updateProgress();
-            }, 500); 
-        }
-
-
-        // --- מטפלי אירועי גרירה ושחרור (Drag and Drop Handlers - Desktop) ---
-
-        function handleDragStart(e) {
-            if (!isGameActive) return;
-            dragTargetType = e.target.getAttribute('data-type');
-            e.dataTransfer.setData('text/plain', dragTargetType);
-            e.dataTransfer.effectAllowed = 'move';
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault(); 
-            const targetEl = e.target.closest('.character-target');
-            if (targetEl && targetEl.classList.contains('character-target')) {
-                e.dataTransfer.dropEffect = 'move';
-                // הסרת drag-over מכל השאר והוספה ליעד הנוכחי
-                document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
-                targetEl.classList.add('drag-over');
-            }
-        }
-
-        function handleDragLeave(e) {
-            // מנוטרל כי handleDragOver כבר מסיר את כולם, וזה מונע "הבהוב"
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            const targetEl = e.target.closest('.character-target');
-            
-            if (targetEl) {
-                // אם נפלו על יעד, processDrop מטפל בהכל (ניקוד, פלאש והתקדמות)
-                processDrop(targetEl, dragTargetType);
-            } else {
-                // אם פספסו את היעד לחלוטין (נופל בחלל ריק)
-                currentDefinitionIndex++;
-                displayCurrentDefinition();
-                updateProgress();
-            }
-        }
-        
-        // --- פונקציות גלילה אוטומטית (עוזרות למובייל) ---
-
-        function startAutoScroll(direction) {
-            if (autoScrollInterval) return;
-
-            autoScrollInterval = setInterval(() => {
-                const scrollAmount = direction * SCROLL_SPEED;
-                window.scrollBy(0, scrollAmount); 
-            }, 50); 
-        }
-
-        function stopAutoScroll() {
-            if (autoScrollInterval) {
-                clearInterval(autoScrollInterval);
-                autoScrollInterval = null;
-            }
-        }
-
-        // --- מטפלי אירועי מגע (Touch Handlers - Mobile/Tablet) ---
-
-        function handleTouchStart(e) {
-            if (!isGameActive || e.touches.length !== 1) return;
-            e.preventDefault(); // מונע גלילה/זום כדי לאפשר גרירה מיידית
-
-            isDraggingTouch = true;
-            // ודא שאתה קורא את ה-data-type מהכרטיס הראשי
-            dragTargetType = currentDefinitionEl.getAttribute('data-type');
-            
-            // שמירת מיקום מקורי ונקודת התחלה
-            originalCardRect = currentDefinitionEl.getBoundingClientRect();
-            // *** שינוי: שמירת נקודת התחלה לחישוב דלתא מדויק יותר ***
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            
-            // מעבר למיקום קבוע (fixed) כדי לאפשר גרירה מחוץ לקונטיינר
-            currentDefinitionEl.style.position = 'fixed';
-            // נשתמש במיקום המקורי ב-Viewport (top/left)
-            currentDefinitionEl.style.top = originalCardRect.top + 'px';
-            currentDefinitionEl.style.left = originalCardRect.left + 'px';
-            currentDefinitionEl.style.width = originalCardRect.width + 'px';
-            currentDefinitionEl.style.zIndex = 1000;
-            currentDefinitionEl.classList.add('is-dragging');
-            currentDefinitionEl.style.transition = 'none'; // מונע "שחייה" של הכרטיס
-        }
-
-        function handleTouchMove(e) {
-            if (!isDraggingTouch || e.touches.length !== 1) return;
-            
-            const touch = e.touches[0];
-            
-            // *** 1. הזזת הכרטיס באמצעות transform: translate (חלק יותר במובייל) ***
-            const deltaX = touch.clientX - touchStartX;
-            const deltaY = touch.clientY - touchStartY;
-            
-            currentDefinitionEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-            
-            // 2. בדיקה ויזואלית: סימון היעד שנמצא מתחת לאצבע
-            // elementFromPoint יעבוד כי לכרטיס הנגרר יש pointer-events: none (דרך is-dragging)
-            let elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
-            let currentTarget = elementUnderTouch ? elementUnderTouch.closest('.character-target') : null;
-
-            document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
-            
-            if (currentTarget) {
-                currentTarget.classList.add('drag-over');
-            }
-            
-            // 3. לוגיקת גלילה אוטומטית (Auto-Scroll)
-            const viewportHeight = window.innerHeight;
-            
-            if (touch.clientY < SCROLL_THRESHOLD && window.scrollY > 0) {
-                // גלילה למעלה
-                startAutoScroll(-1);
-            } else if (touch.clientY > viewportHeight - SCROLL_THRESHOLD && (window.scrollY + viewportHeight < document.documentElement.scrollHeight)) {
-                // גלילה למטה
-                startAutoScroll(1);
-            } else {
-                // עצירת גלילה
-                stopAutoScroll();
-            }
-        }
-
-        function handleTouchEnd(e) {
-            if (!isDraggingTouch) return;
-            
-            stopAutoScroll(); // עצור כל גלילה אוטומטית פעילה
-            
-            // מציאת היעד בנקודת השחרור
-            const touch = e.changedTouches[0];
-            let targetEl = null;
-
-            // מציאת האלמנט שמתחת לנקודת השחרור
-            let droppedTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-
-            if (droppedTarget) {
-                targetEl = droppedTarget.closest('.character-target');
-            }
-            
-            // הסרת סגנון הגרירה
-            isDraggingTouch = false;
-            currentDefinitionEl.classList.remove('is-dragging');
-            
-            
-            // ננקה את הסטיילים כאן רק אם לא נפלנו על יעד (כי אחרת processDrop יטפל בזה)
-            if (!targetEl) {
-                // אם פספסנו את היעד, מחזירים את הכרטיס למקומו ומתקדמים מיד
-
-                // החזרת הכרטיס למקומו המקורי עם אנימציה
-                currentDefinitionEl.style.transition = 'transform 0.3s ease-out, left 0.3s ease-out, top 0.3s ease-out';
-                currentDefinitionEl.style.transform = ``; 
-                currentDefinitionEl.style.left = originalCardRect.left + 'px';
-                currentDefinitionEl.style.top = originalCardRect.top + 'px';
-
-                // ניקוי סגנונות ה-fixed לאחר האנימציה (300ms)
-                setTimeout(() => {
-                    currentDefinitionEl.style.position = '';
-                    currentDefinitionEl.style.top = '';
-                    currentDefinitionEl.style.left = '';
-                    currentDefinitionEl.style.width = '';
-                    currentDefinitionEl.style.zIndex = '';
-                    currentDefinitionEl.style.transition = '';
-                    
-                    // ודא שכל סימון ויזואלי שהיה הוסר
-                    document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
-                    
-                    // מתקדמים לשאלה הבאה ללא ניקוד
-                    currentDefinitionIndex++;
-                    displayCurrentDefinition();
-                    updateProgress();
-                }, 300);
-            }
-            
-            // *** לוגיקת ההדגשה, הניקוד והתקדמות ***
-            if (targetEl) {
-                // אם נפלנו על יעד:
-                // 1. קוראים ל-processDrop - הוא יטפל בניקוד, בהדגשה (flash) ובהצבת התוכן בפנים
-                processDrop(targetEl, dragTargetType);
-            } 
-            // **********************************
-            
-            dragTargetType = null;
-        }
-
-        // --- אתחול והפעלת המשחק ---
-
-        window.onload = function() {
-            // הוספה של מאזיני אירועים לכפתורים במסך הפתיחה
-            startButton.addEventListener('click', startGame);
-            restartButton.addEventListener('click', startGame);
-
-            // הגדרה ראשונית: הצג מסך פתיחה והסתר תוכן משחק
-            gameContent.classList.add('hidden');
-            splashScreen.classList.remove('hidden');
-
-            // הוספת מאזיני אירועי גרירה (Desktop)
-            currentDefinitionEl.addEventListener('dragstart', handleDragStart);
-
-            // הוספת מאזיני אירועי מגע (Mobile/Tablet)
-            currentDefinitionEl.addEventListener('touchstart', handleTouchStart, { passive: false }); // passive: false קריטי ל-preventDefault
-            currentDefinitionEl.addEventListener('touchmove', handleTouchMove);
-            currentDefinitionEl.addEventListener('touchend', handleTouchEnd);
-        };
-        
+        });
     </script>
 </body>
 </html>
