@@ -652,9 +652,6 @@
                 // בצע גלילה
                 window.scrollBy(0, scrollAmount); 
                 
-                // עדכן את מיקום כרטיס ההגדרה הנגרר בזמן הגלילה
-                // ה-position:fixed משאיר אותו במקומו היחסי למסך, אז לא צריך לשנות את ה-transform.
-                
             }, 50); // קצב רענון מהיר לגלילה חלקה
         }
 
@@ -704,13 +701,18 @@
 
         function handleTouchMove(e) {
             if (!isDraggingTouch || e.touches.length !== 1) return;
-            e.preventDefault(); // מונע גלילה במהלך תנועת המגע - חשוב לגרירה מדויקת
+            // *** תיקון קריטי: הסרת e.preventDefault() מכאן ***
+            // מאפשר למנגנון הגלילה האוטומטית לעבוד ללא הפרעות, ומייצב את תנועת הכרטיס
+            // e.preventDefault(); // נמחק
+            // ******************************************************
 
             const touch = e.touches[0];
             const deltaX = touch.clientX - touchStartX;
             const deltaY = touch.clientY - touchStartY;
             
             // 1. הזזת הכרטיס עם האצבע (יחסית לנקודת ההתחלה)
+            // יש לקחת בחשבון את הגלילה הנוכחית של הדף כדי לחשב את המיקום המוחלט על המסך
+            // מכיוון שהכרטיס הוא fixed, אנו מזיזים אותו רק יחסית למסך (באמצעות delta)
             currentDefinitionEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
             
             // 2. בדיקה ויזואלית: סימון היעד שנמצא מתחת לאצבע
@@ -784,7 +786,7 @@
 
             // הוספת מאזיני אירועי מגע (Mobile/Tablet)
             currentDefinitionEl.addEventListener('touchstart', handleTouchStart, { passive: false });
-            currentDefinitionEl.addEventListener('touchmove', handleTouchMove, { passive: false });
+            currentDefinitionEl.addEventListener('touchmove', handleTouchMove); // passive: false נשאר בברירת מחדל אם הוא לא מוגדר מפורשות, אבל הסרנו את preventDefault הפנימי.
             currentDefinitionEl.addEventListener('touchend', handleTouchEnd);
         };
         
