@@ -20,6 +20,10 @@
             --card-bg-light: #ffffff; /* רקע כרטיס לבן */
             --border-color-light: #d1d5db; /* גבול אפור עדין */
             --neon-glow: rgba(6, 182, 212, 0.5); /* זוהר טורקיז להדגשה */
+            --error-color: #ef4444; /* Red-500 - נשאר למקרה שנרצה אותו מאוחר יותר */
+            --neutral-flash-bg: #e0f7fa; /* רקע ניטרלי כחול בהיר */
+            --neutral-flash-border: #06b6d4; /* גבול ניטרלי טורקיז */
+            --neutral-text-color: #1e40af; /* טקסט ניטרלי כחול כהה */
         }
         
         /* רקע עם אלמנטים זזים */
@@ -155,14 +159,14 @@
             box-shadow: 0 0 30px 10px var(--neon-glow), inset 0 0 0 3px var(--accent-color); 
             border-color: var(--accent-color) !important;
             opacity: 1;
-            background-color: #e0f7fa !important;
+            background-color: var(--neutral-flash-bg) !important;
         }
 
-        /* סגנון הבזק אחיד (סימון שהבחירה נקלטה) */
+        /* סגנון הבזק ניטרלי (הדגשת בחירה) */
         .character-target.success-flash {
             animation: flash-effect 0.4s ease-out;
-            border-color: var(--accent-color);
-            background-color: #e0f7fa;
+            border-color: var(--neutral-flash-border);
+            background-color: var(--neutral-flash-bg);
             box-shadow: 0 0 20px 8px var(--neon-glow);
         }
         
@@ -171,6 +175,16 @@
             50% { transform: scale(1.03); opacity: 1; box-shadow: 0 0 25px 8px var(--neon-glow); }
             100% { transform: scale(1); opacity: 1; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); }
         }
+        
+        /* סגנון הבזק שגוי (אדום) - נשאר כגיבוי אך לא בשימוש בלוגיקה הנוכחית */
+        .character-target.error-flash {
+             /* *** סגנון נייטרלי זהה ל-success-flash *** */
+            animation: flash-effect 0.4s ease-out;
+            border-color: var(--neutral-flash-border);
+            background-color: var(--neutral-flash-bg);
+            box-shadow: 0 0 20px 8px var(--neon-glow);
+        }
+        
 
         /* מד התקדמות */
         #progressBarContainer {
@@ -188,17 +202,16 @@
 
         /* מודאל תוצאות - נשאר כהה לאפקט דרמטי */
         .results-modal {
-            background-color: rgba(0, 0, 0, 0.98); /* *** שיפור: כמעט אטום לגמרי לנראות מקסימלית *** */
+            background-color: rgba(0, 0, 0, 0.98); 
         }
         .results-card {
             background: #1e293b;
             border-radius: 2rem;
-            /* *** שיפור: הצללה וגבול חזקים יותר *** */
             box-shadow: 0 30px 100px rgba(0, 0, 0, 1), inset 0 0 0 4px var(--accent-color);
             padding: 3rem;
             color: white;
             animation: modalPopIn 0.5s ease-out;
-            max-width: 90%; /* וודא שלא עולה על רוחב מסך במובייל */
+            max-width: 90%; 
         }
         @keyframes modalPopIn {
             from { opacity: 0; transform: scale(0.8); }
@@ -223,7 +236,6 @@
             font-weight: 700;
             padding: 1rem 2.5rem;
             border-radius: 9999px;
-            /* *** שיפור: צל חזק יותר לכפתור *** */
             box-shadow: 0 12px 35px rgba(79, 70, 229, 0.7);
             transition: all 0.3s ease-in-out;
             border: none;
@@ -231,7 +243,6 @@
         }
         .results-card button#restartButton:hover {
             transform: translateY(-3px) scale(1.02);
-            /* *** שיפור: צל חזק יותר בהובר לכפתור *** */
             box-shadow: 0 20px 50px rgba(79, 70, 229, 0.8), 0 0 25px var(--accent-color);
             background: linear-gradient(90deg, var(--secondary-color), var(--primary-color)) !important; 
         }
@@ -473,12 +484,17 @@
                 const targetEl = document.createElement('div');
                 targetEl.id = `target-${data.type.replace(/\s/g, '-')}`;
                 targetEl.setAttribute('data-type', data.type);
-                targetEl.classList.add('character-target', 'flex', 'flex-col', 'items-center', 'justify-center', 'text-center');
-
+                // הוספת flex-grow כדי שיכיל את התוכן הנוסף
+                targetEl.classList.add('character-target', 'flex', 'flex-col', 'items-center', 'justify-start', 'text-center');
+                
+                // הוספת placeholder לתוכן שיוכנס
                 targetEl.innerHTML = `
                     <div class="text-5xl mb-2">${data.emoji}</div>
                     <p class="text-lg font-bold">${data.type}</p>
-                    <p class="text-sm">${data.label}</p>
+                    <p class="text-sm mb-2">${data.label}</p>
+                    <div class="definition-placeholder w-full h-auto mt-2 border-t pt-2 text-xs text-gray-700 transition-all duration-300">
+                        <span class="text-gray-400">--- גרור הגדרה לכאן ---</span>
+                    </div>
                 `;
 
                 // הוספת מאזיני אירועי גרירה (Desktop)
@@ -561,36 +577,47 @@
          * מטפלת בניקוד, אפקט ויזואלי והתקדמות לשאלה הבאה.
          */
         function processDrop(targetEl, draggedType) {
-            if (!targetEl) return; // הגנה, למרות שהלוגיקה שקוראת לפונקציה הזו כבר בודקת זאת
+            if (!targetEl) return; 
 
             const targetType = targetEl.getAttribute('data-type'); 
             let isCorrect = (draggedType === targetType);
-
+            const currentDefinitionData = gameData[currentDefinitionIndex];
+            const definitionText = currentDefinitionData.definition;
+            const placeholderEl = targetEl.querySelector('.definition-placeholder');
+            
             // 1. בדיקת נכונות ועדכון הציון באופן סמוי
             if (isCorrect) {
                 score++;
+                // אין צורך ב-success-flash כי אנו משתמשים בו כאינדיקציה נייטרלית
             } 
-
-            // 2. סימון אחיד קצר ללא גילוי נכונות (רק כדי לסמן שהאירוע נקלט)
-            targetEl.classList.add('success-flash'); 
             
-            // מנטרל אירועי מצביע על כל היעדים כדי למנוע דאבל-קליק בזמן הטיימר
-            document.querySelectorAll('.character-target').forEach(t => t.style.pointerEvents = 'none');
-            // *** currentDefinitionEl כבר הוסתר ב-handleTouchEnd או יוסתר כעת ***
-            if (!currentDefinitionEl.classList.contains('hidden')) {
-                currentDefinitionEl.classList.add('hidden'); // ודא שהוא מוסתר גם בדסקטופ
-            }
-            currentDefinitionEl.style.pointerEvents = 'none'; // וגם על הכרטיס הנוכחי
+            // *** 2. הצגת ההגדרה הקטנה בתוך היעד (צבע ניטרלי כחול/טורקיז) ***
+            // נציג רק חלק קטן מהטקסט
+            const contentHTML = `
+                <p class="text-xs text-right px-1 py-0.5 rounded-md shadow-sm transition-all duration-300 transform scale-95" 
+                   style="background-color: var(--neutral-flash-bg); color: var(--neutral-text-color); border: 1px solid var(--neutral-flash-border); font-weight: 500; opacity: 1;">
+                    ${definitionText.substring(0, 75)}...
+                </p>
+            `;
+            placeholderEl.innerHTML = contentHTML;
+            
+            // 3. הפעלת הבזק ניטרלי (הדגשה שהבחירה נקלטה)
+            targetEl.classList.add('success-flash'); 
 
-            // הסרת הסימון והתקדמות לשאלה הבאה לאחר השהיה קצרה (0.5 שניות)
+            // 4. הסתרת הכרטיס הנגרר מיד ונטרול אירועים
+            currentDefinitionEl.classList.add('hidden'); 
+            currentDefinitionEl.classList.remove('is-dragging'); 
+            document.querySelectorAll('.character-target').forEach(t => t.style.pointerEvents = 'none');
+            currentDefinitionEl.style.pointerEvents = 'none'; 
+
+            // 5. ניקוי וקידום לאחר חצי שנייה (500ms)
             setTimeout(() => {
-                targetEl.classList.remove('drag-over'); 
-                targetEl.classList.remove('success-flash');
+                targetEl.classList.remove('drag-over', 'success-flash', 'error-flash'); 
 
                 // החזרת אירועי מצביע
                 document.querySelectorAll('.character-target').forEach(t => t.style.pointerEvents = 'auto');
                 
-                // *** ניקוי סגנונות מיקום קבוע שהושארו מ-handleTouchStart/Move ***
+                // ניקוי סגנונות מיקום קבוע
                 currentDefinitionEl.style.position = '';
                 currentDefinitionEl.style.top = '';
                 currentDefinitionEl.style.left = '';
@@ -599,7 +626,6 @@
                 currentDefinitionEl.style.transition = '';
                 currentDefinitionEl.style.transform = ''; 
                 
-                // 3. התקדמות מיידית לשאלה הבאה
                 currentDefinitionIndex++;
                 displayCurrentDefinition();
                 updateProgress();
@@ -628,7 +654,6 @@
         }
 
         function handleDragLeave(e) {
-            // e.target.closest('.character-target')?.classList.remove('drag-over');
             // מנוטרל כי handleDragOver כבר מסיר את כולם, וזה מונע "הבהוב"
         }
 
@@ -672,8 +697,7 @@
             e.preventDefault(); // מונע גלילה/זום כדי לאפשר גרירה מיידית
 
             isDraggingTouch = true;
-            // *** תיקון קריטי: ודא שאתה קורא את ה-data-type מהכרטיס הראשי ***
-            // e.target לא תמיד יהיה הכרטיס הראשי, לכן נשתמש באלמנט המוגדר מראש
+            // ודא שאתה קורא את ה-data-type מהכרטיס הראשי
             dragTargetType = currentDefinitionEl.getAttribute('data-type');
             
             // שמירת מיקום מקורי ונקודת התחלה
@@ -747,8 +771,6 @@
             isDraggingTouch = false;
             currentDefinitionEl.classList.remove('is-dragging');
             
-            // *** שינוי: החזרת הכרטיס למקומו המקורי מתבצעת בתוך processDrop,
-            // *** אנו רק מנקים את כל הסטיילים הקשורים ל-fixed כדי שהכרטיס יחזור מהר ***
             
             // ננקה את הסטיילים כאן רק אם לא נפלנו על יעד (כי אחרת processDrop יטפל בזה)
             if (!targetEl) {
@@ -782,11 +804,8 @@
             // *** לוגיקת ההדגשה, הניקוד והתקדמות ***
             if (targetEl) {
                 // אם נפלנו על יעד:
-                // 1. קוראים ל-processDrop - הוא יטפל בניקוד, בהדגשה (flash) ובהתקדמות
+                // 1. קוראים ל-processDrop - הוא יטפל בניקוד, בהדגשה (flash) ובהצבת התוכן בפנים
                 processDrop(targetEl, dragTargetType);
-                
-                // 2. ניקוי המיקום הקבוע מתבצע בתוך processDrop אחרי הפלאש.
-                
             } 
             // **********************************
             
