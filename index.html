@@ -752,11 +752,12 @@
             const touch = e.changedTouches[0];
             let targetEl = null;
 
-            // הסתרת הכרטיס הנגרר לבדיקת האלמנט שמתחתיו
+            // *** תיקון קריטי: הסתרה/חשיפה של האלמנט הנגרר לצורך בדיקת היעד ***
             currentDefinitionEl.style.display = 'none';
             // שימוש ב-elementFromPoint לבדיקה מדויקת של יעד השחרור
             let droppedTarget = document.elementFromPoint(touch.clientX, touch.clientY);
             currentDefinitionEl.style.display = 'flex'; 
+            // ********************************************************************
 
             if (droppedTarget) {
                 targetEl = droppedTarget.closest('.character-target');
@@ -775,7 +776,7 @@
                 // שחרור מוצלח: קריאה לפונקציית הליבה
                 processDrop(targetEl, dragTargetType);
             } else {
-                // אם אין יעד (נשמט בריק), עדיין נחשב כשאלה שהושלמה (כדי להתקדם), אבל ללא ניקוד
+                // אם אין יעד (נשמט בריק) או שהיעד אינו תואם, מתקדמים בכל מקרה אבל ללא ניקוד
                 currentDefinitionIndex++;
                 displayCurrentDefinition();
                 updateProgress();
