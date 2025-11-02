@@ -101,6 +101,8 @@
         }
         .definition-card.is-dragging {
             opacity: 0.9;
+            /* *** תיקון חדש: אירועי מצביע מנוטרלים כדי לאפשר זיהוי יעד שמתחתיו *** */
+            pointer-events: none;
         }
         .definition-card span.text-xl {
             color: var(--accent-color);
@@ -469,6 +471,9 @@
                 currentDefinitionEl.style.width = '';
                 currentDefinitionEl.style.zIndex = '';
                 currentDefinitionEl.style.transition = '';
+                // *** ודא ש-pointer-events מופעל שוב לאחר גרירה קודמת ***
+                currentDefinitionEl.style.pointerEvents = 'auto'; 
+
             } else {
                 // הסתרת כרטיס הגרירה והצגת הודעת סיום באזור ההגדרה
                 currentDefinitionEl.classList.add('hidden');
@@ -600,6 +605,7 @@
             
             // הסרת הסימון לאחר השהיה קצרה (0.5 שניות)
             setTimeout(() => {
+                targetEl.classList.remove('drag-over'); // ודא שגם ה-drag-over מוסר
                 targetEl.classList.remove('success-flash');
             }, 500); 
             
@@ -692,6 +698,9 @@
             currentDefinitionEl.classList.add('is-dragging');
             // מחיקת Transition כדי שההזזה תהיה מיידית ולא "תשחה"
             currentDefinitionEl.style.transition = 'none'; 
+            
+            // *** הפעלת pointer-events: none (באמצעות CSS) כדי להיות שקוף לאירועי מגע ***
+            // זה מופעל באמצעות הקלאס .is-dragging (ראו CSS מעל)
         }
 
         function handleTouchMove(e) {
@@ -706,27 +715,20 @@
             currentDefinitionEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
             
             // 2. בדיקה ויזואלית: סימון היעד שנמצא מתחת לאצבע
-            const targets = document.querySelectorAll('.character-target');
-            let currentTarget = null;
             
-            targets.forEach(t => {
-                t.classList.remove('drag-over');
-                const rect = t.getBoundingClientRect();
-                
-                // בדיקה אם נקודת המגע נמצאת בתוך גבולות היעד הנוכחי
-                if (
-                    touch.clientX >= rect.left && 
-                    touch.clientX <= rect.right && 
-                    touch.clientY >= rect.top && 
-                    touch.clientY <= rect.bottom
-                ) {
-                    currentTarget = t;
-                }
-            });
+            // *** שימוש ב-elementFromPoint לבדיקה מדויקת של יעד ***
+            // נשתמש בטכניקה בטוחה יותר: מכיוון ש-pointer-events: none מופעל ב-.is-dragging, 
+            // אנחנו יכולים להשתמש ב-elementFromPoint ישירות!
+            let elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+            let currentTarget = elementUnderTouch ? elementUnderTouch.closest('.character-target') : null;
+
+            document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
             
             if (currentTarget) {
                 currentTarget.classList.add('drag-over');
             }
+            // *************************************************************
+            
             
             // 3. לוגיקת גלילה אוטומטית (Auto-Scroll)
             const viewportHeight = window.innerHeight;
@@ -748,22 +750,18 @@
             
             stopAutoScroll(); // עצור כל גלילה אוטומטית פעילה
             
-            // מציאת היעד בנקודת השחרור (שימוש ב changedTouches)
+            // מציאת היעד בנקודת השחרור
             const touch = e.changedTouches[0];
             let targetEl = null;
 
-            // *** תיקון קריטי: הסתרה/חשיפה של האלמנט הנגרר לצורך בדיקת היעד ***
-            currentDefinitionEl.style.display = 'none';
-            // שימוש ב-elementFromPoint לבדיקה מדויקת של יעד השחרור
+            // *** שימוש ב-elementFromPoint לאחר הפעלת pointer-events: none ב-handleTouchStart/Move ***
             let droppedTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-            currentDefinitionEl.style.display = 'flex'; 
-            // ********************************************************************
 
             if (droppedTarget) {
                 targetEl = droppedTarget.closest('.character-target');
             }
             
-            // הסרת סגנון הגרירה
+            // הסרת סגנון הגרירה (והחזרת pointer-events: auto דרך displayCurrentDefinition)
             isDraggingTouch = false;
             currentDefinitionEl.classList.remove('is-dragging');
             document.querySelectorAll('.character-target').forEach(t => t.classList.remove('drag-over'));
@@ -772,11 +770,12 @@
             currentDefinitionEl.style.transition = 'transform 0.3s ease-out';
             currentDefinitionEl.style.transform = 'none';
 
-            if (targetEl) {
-                // שחרור מוצלח: קריאה לפונקציית הליבה
+            if (targetEl && targetEl.getAttribute('data-type') === dragTargetType) {
+                // שחרור מוצלח ומתאים: קריאה לפונקציית הליבה
                 processDrop(targetEl, dragTargetType);
             } else {
-                // אם אין יעד (נשמט בריק) או שהיעד אינו תואם, מתקדמים בכל מקרה אבל ללא ניקוד
+                // שחרור בריק, שחרור על יעד שגוי או שגיאת זיהוי
+                // מתקדמים בכל מקרה אבל ללא ניקוד נוסף (כי processDrop לא נקרא)
                 currentDefinitionIndex++;
                 displayCurrentDefinition();
                 updateProgress();
